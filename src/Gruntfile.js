@@ -52,8 +52,11 @@ module.exports = function(grunt) {
                 stripBanners: false
             },
             dist: {
-                cw: ["BulkEdit/**/"],
-                src: ["*.js"],
+                src: [
+                    "BulkEdit/bulkEdit.namespaces.js",
+                    "BulkEdit/bulkEdit.api.js",
+                    "BulkEdit/controllers/bulkEdit.dashboard.controller.js"
+                ],
                 dest: "<%= basePath %>/js/BulkEdit.js"
             }
         },

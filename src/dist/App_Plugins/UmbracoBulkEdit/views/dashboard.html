@@ -1,5 +1,18 @@
 <div class="row bulk-edit" ng-controller="bulkEdit.dashboard.controller">
     <div class="span12">
         <h3>Bulk Edit</h3>
+        <div class="head">
+            <div>
+                <span ng-show="startNode.id !== 0">
+                    <p><b>Start Content:</b> <i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</p>
+                </span>
+                <span>
+                    <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
+                        <span ng-show="startNode.id == 0">Choose Start Content</span>
+                        <span ng-show="startNode.id !== 0">Change Start Content</span>
+                    </button>
+                </span>
+            </div>
+        </div>
     </div>
 </div>

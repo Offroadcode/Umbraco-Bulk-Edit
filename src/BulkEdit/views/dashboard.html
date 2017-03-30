@@ -1,5 +1,52 @@
 <div class="row bulk-edit" ng-controller="bulkEdit.dashboard.controller">
     <div class="span12">
         <h3>Bulk Edit</h3>
+        <div class="head row">
+            <div class="span4">
+                <div>
+                    <span ng-show="startNode.id !== 0">
+                        <b>Start Content:</b> <a href="/umbraco/#/content/content/edit/{{startNode.id}}" ><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</a>
+                    </span> 
+                    <span>
+                        <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
+                            <span ng-show="startNode.id == 0">Choose Start Content</span>
+                            <span ng-show="startNode.id !== 0">Change</span>
+                        </button>
+                    </span>
+                    <br><br>
+                </div>
+                <div class="content-type-selector">
+                    <b>Content Type to edit:</b> 
+                    <select ng-model="doctype" ng-change="loadDocType()" ng-options="x.alias as x.name for x in doctypes">
+                    </select>
+                </div>
+                <button type="button" ng-click="search()">Search</button>
+                <br/><br/>
+            </div>
+        </div>
+        <div>
+            <h4>Results</h4>
+            <div class="umb-table">
+                <div class="umb-table-head">
+                    <div class="umb-table-row">
+                        <div class="umb-table-cell">
+                        </div>
+                        <div class="umb-table-cell span3">
+                            Content Name
+                        </div>
+                        <div class="umb-table-cell span3">
+                            Id
+                        </div>
+                    </div>
+                    <div class="umb-table-body">
+                        <div class="umb-table-row">
+                            <div class="umb-table-cell"></div>
+                            <div class="umb-table-cell span3">Home</div>
+                            <div class="umb-table-cell span3">1234</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
