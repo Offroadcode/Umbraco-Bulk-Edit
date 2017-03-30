@@ -30,7 +30,7 @@ But if you do build directly into a site, you'll need to add the following to it
             <area>content</area>
         </areas>
         <tab caption="Bulk Edit">
-            <control>/App_Plugins/BulkEdit/views/dashboard.html</control>
+            <control>/App_Plugins/UmbracoBulkEdit/views/dashboard.html</control>
         </tab>  
     </section>
 

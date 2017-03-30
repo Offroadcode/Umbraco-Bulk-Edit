@@ -52,7 +52,8 @@ module.exports = function(grunt) {
                 stripBanners: false
             },
             dist: {
-                src: ["BulkEdit/**/*.js"],
+                cw: ["BulkEdit/**/"],
+                src: ["*.js"],
                 dest: "<%= basePath %>/js/BulkEdit.js"
             }
         },
@@ -65,7 +66,8 @@ module.exports = function(grunt) {
                 expand: true
             },
             html: {
-                src: ["BulkEdit/views/*.html"],
+                cwd: "BulkEdit/views/",
+                src: ["*.html"],
                 dest: "<%= basePath %>/views/",
                 expand: true,
                 rename: function(dest, src) {
