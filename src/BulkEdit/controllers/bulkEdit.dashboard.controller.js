@@ -25,6 +25,7 @@ angular
         $scope.setVariables = function() {
             $scope.doctype = false;
             $scope.doctypes = [];
+            $scope.results = [];
             $scope.startNode = {
                 icon: '',
                 id: 0,
@@ -78,7 +79,20 @@ angular
         };
 
         $scope.search = function() {
-            
+            $scope.results = [
+                {
+                    name: "Golden Lion Hotel",
+                    id: 1234
+                },
+                {
+                    name: "Really Cool Hotel",
+                    id: 1235
+                },
+                {
+                    name: "Some Other Hotel",
+                    id: 1236
+                }
+            ]
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////

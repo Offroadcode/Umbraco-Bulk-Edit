@@ -24,25 +24,29 @@
                 <br/><br/>
             </div>
         </div>
-        <div>
+        <div ng-show="results.length > 0">
             <h4>Results</h4>
             <div class="umb-table">
                 <div class="umb-table-head">
                     <div class="umb-table-row">
                         <div class="umb-table-cell">
                         </div>
-                        <div class="umb-table-cell span3">
+                        <div class="umb-table-cell">
                             Content Name
                         </div>
-                        <div class="umb-table-cell span3">
+                        <div class="umb-table-cell">
                             Id
+                        </div>
+                        <div class="umb-table-cell">
+                            <button type="button">+</button>
                         </div>
                     </div>
                     <div class="umb-table-body">
-                        <div class="umb-table-row">
+                        <div class="umb-table-row" ng-repeat="result in results">
                             <div class="umb-table-cell"></div>
-                            <div class="umb-table-cell span3">Home</div>
-                            <div class="umb-table-cell span3">1234</div>
+                            <div class="umb-table-cell"><a href="/umbraco/#/content/content/edit/{{result.id}}" target="_blank">{{result.name}}</a></div>
+                            <div class="umb-table-cell">{{result.id}}</div>
+                            <div class="umb-table-cell"></div>
                         </div>
                     </div>
                 </div>
