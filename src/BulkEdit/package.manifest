@@ -1,0 +1,8 @@
+{
+    javascript: [
+        "~/app_plugins/BulkEdit/js/BulkEdit.js"
+    ],
+    css: [
+        "~/app_plugins/BulkEdit/css/BulkEdit.css"
+    ]
+}
