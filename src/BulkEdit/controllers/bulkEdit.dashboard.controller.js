@@ -36,6 +36,16 @@ angular
 
         // Event Handler Methods /////////////////////////////////////////////////////
 
+        $scope.exportAsCsv = function() {
+            var csvUrl = "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent";
+            var data = {
+                format: "Csv",
+                contentTypeAlias: $scope.doctype.alias,
+                rootId: $scope.startNode.id
+            };
+            $scope.openPage('GET', csvUrl, data);
+        };
+
         /**
          * @method handleStartNodePickerSelection
          * @param {Object} data - modal object returned by dialogService.contentPicker()
@@ -143,6 +153,31 @@ angular
         $scope.getDoctype = function(id) {
             return contentTypeResource.getById(id);
         };
+
+        /**
+         * @method openPage
+         * @param {string} verb - must be 'GET or 'POST'
+         * @param {string} url
+         * @param {JSON} data
+         * @param {string} target (can be a name or "_blank", defaults to "_self")
+         */
+        $scope.openPage = function(verb, url, data, target) {
+            var form = document.createElement("form");
+            form.action = url;
+            form.method = verb;
+            form.target = target || "_self";
+            if (data) {
+                for (var key in data) {
+                    var input = document.createElement("textarea");
+                    input.name = key;
+                    input.value = typeof data[key] === "object" ? JSON.stringify(data[key]) : data[key];
+                    form.appendChild(input);
+                }
+            }
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            form.submit();
+        };        
 
         /**
          * @method sortArrayAlphaByProp

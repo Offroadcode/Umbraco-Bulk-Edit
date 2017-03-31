@@ -64,7 +64,13 @@ module.exports = function(grunt) {
         copy: {
             dll: {
                 cwd: "BulkEdit/Umbraco/UmbracoBulkEdit/UmbracoBulkEdit/bin/debug/",
-                src: ["Skybrud.Essentials.dll", "Skybrud.Umbraco.GridData.dll", "UmbracoBulkEdit.dll"],
+                src: [
+                    "CsvHelper.dll",
+                    "CsvHelper.Excel.dll",
+                    "Skybrud.Essentials.dll", 
+                    "Skybrud.Umbraco.GridData.dll", 
+                    "UmbracoBulkEdit.dll"
+                ],
                 dest: "<%= dest %>/bin/",
                 expand: true
             },
