@@ -17,10 +17,13 @@
                 </div>
                 <div class="content-type-selector">
                     <b>Content Type to edit:</b> 
-                    <select ng-model="doctype" ng-change="loadDocType()" ng-options="x.alias as x.name for x in doctypes">
+                    <select 
+                        ng-model="doctype" 
+                        ng-change="loadDocType()" 
+                        ng-options="x as x.name for x in doctypes">
                     </select>
                 </div>
-                <button type="button" ng-click="search()">Search</button>
+                <button type="button" ng-click="search()" ng-disabled="doctype.id == 0 || startNode.id == 0">Search</button>
                 <br/><br/>
             </div>
         </div>
@@ -44,7 +47,7 @@
                     <div class="umb-table-body">
                         <div class="umb-table-row" ng-repeat="result in results">
                             <div class="umb-table-cell"></div>
-                            <div class="umb-table-cell"><a href="/umbraco/#/content/content/edit/{{result.id}}" target="_blank">{{result.Name}}</a></div>
+                            <div class="umb-table-cell"><a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a></div>
                             <div class="umb-table-cell">{{result.Id}}</div>
                             <div class="umb-table-cell"></div>
                         </div>

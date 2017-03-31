@@ -11,11 +11,6 @@ angular
             $scope.setVariables();
             $scope.buildDocTypeOptions();
             console.info('init');
-            /*bulkEditApi.getMatchingContent().then(function(response){
-                console.info('response', response);
-            }, function(error) {
-                console.info('error', error);
-            });*/
         };
 
         /**
@@ -23,8 +18,13 @@ angular
         * @description Sets up the initial variables for the view.
         */
         $scope.setVariables = function() {
-            $scope.doctype = false;
-            $scope.doctypes = [];
+            $scope.doctypes = [{
+                name: '-Select Doctype-',
+                alias: '',
+                id: 0
+            }];
+            $scope.doctype = $scope.doctypes[0];
+            $scope.properties = [];
             $scope.results = [];
             $scope.startNode = {
                 icon: '',
@@ -56,14 +56,12 @@ angular
          */
         $scope.loadDocType = function() {
             console.info($scope.doctype);
-            /*$scope.properties = [];
-            $scope.getDocTypeFromAlias($scope.docType).then(function(type) {
-                $scope.properties = $scope.buildPropertyListForDocType(type);
-                $scope.selectedProperties = [];
-                for (var i = 0; i < $scope.properties.length; i++) {
-                    $scope.selectedProperties.push($scope.properties[i].id);
-                }
-            });*/
+            if ($scope.doctype.id !== 0) {
+                $scope.getDoctype($scope.doctype.id).then(function(response) {
+                    $scope.properties = $scope.buildPropertiesForDoctype(response);
+                    console.info($scope.properties);
+                });
+            }
         };        
 
         /**
@@ -80,21 +78,7 @@ angular
         };
 
         $scope.search = function() {
-            $scope.getContent($scope.startNode, $scope.doctype);
-            /*$scope.results = [
-                {
-                    name: "Golden Lion Hotel",
-                    id: 1234
-                },
-                {
-                    name: "Really Cool Hotel",
-                    id: 1235
-                },
-                {
-                    name: "Some Other Hotel",
-                    id: 1236
-                }
-            ]*/
+            $scope.getContent($scope.startNode, $scope.doctype.alias);
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////
@@ -118,9 +102,30 @@ angular
                     }
                     // Sort types alphabetically.
                     $scope.doctypes = $scope.sortArrayAlphaByProp($scope.doctypes, 'name');
+                    $scope.doctypes.unshift({
+                        name: '-Select Doctype-',
+                        alias: '',
+                        id: 0
+                    });
+                    $scope.doctype = $scope.doctypes[0];
                     console.info('doctypes', $scope.doctypes);
                 }
             });
+        };
+
+        $scope.buildPropertiesForDoctype = function(doctype) {
+            var properties = [];
+            if (doctype && doctype.groups && doctype.groups.length > 0) {
+                for (var i = 0; i < doctype.groups.length; i++) {
+                    var group = doctype.groups[i];
+                    if (group && group.properties && group.properties.length > 0) {
+                        for (var j = 0; j < group.properties.length; j++) {
+                            properties.push(group.properties[j]);
+                        }
+                    }
+                }
+            }
+            return properties;
         };
 
         $scope.getContent = function(node, doctypeAlias) {
@@ -133,6 +138,10 @@ angular
             },function(error) {
                 console.info('Error', error);
             })
+        };
+
+        $scope.getDoctype = function(id) {
+            return contentTypeResource.getById(id);
         };
 
         /**
