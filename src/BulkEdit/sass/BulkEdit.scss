@@ -4,4 +4,28 @@
             width: 180px;
         }
     }
+
+    .bulk-edit-table {
+        border: solid 2px black;
+        .row {
+            display: flex;
+            align-items: stretch;
+        }
+        .head { 
+            background: #ddd;
+            font-weight: bold;
+        }
+        .body {
+            .row {
+                border-top: solid 1px black;
+            }
+        }
+        .cell {
+            padding: 2px;
+            border-left: solid 1px black;
+            &:first-child {
+                border-left: none;
+            }
+        }
+    }
 }

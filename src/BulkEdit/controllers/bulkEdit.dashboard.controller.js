@@ -1,6 +1,6 @@
 angular
     .module("umbraco")
-    .controller("bulkEdit.dashboard.controller", function($scope, contentTypeResource, dialogService, bulkEditApi) {
+    .controller("bulkEdit.dashboard.controller", function($scope, contentTypeResource, dataTypeResource, dialogService, bulkEditApi) {
         // Initialization Methods ////////////////////////////////////////////////////
 
         /**
@@ -11,6 +11,7 @@ angular
             $scope.setVariables();
             $scope.buildDocTypeOptions();
             console.info('init');
+            console.info('dataTypeResource', dataTypeResource);
         };
 
         /**
@@ -18,13 +19,14 @@ angular
         * @description Sets up the initial variables for the view.
         */
         $scope.setVariables = function() {
-            $scope.doctypes = [{
-                name: '-Select Doctype-',
-                alias: '',
-                id: 0
-            }];
+            $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
-            $scope.properties = [];
+            $scope.isSelectingProperty = false;
+            $scope.properties = [{label: '-Select Property-', id: 0}];
+            $scope.resultProperties = [];
+            $scope.propertiesToEdit = [];
+            $scope.propertyEditors = [];
+            $scope.propertyToAdd = $scope.properties[0];
             $scope.results = [];
             $scope.startNode = {
                 icon: '',
@@ -36,6 +38,31 @@ angular
 
         // Event Handler Methods /////////////////////////////////////////////////////
 
+        $scope.addPropertyToEditList = function() {
+            $scope.propertiesToEdit.push($scope.propertyToAdd);
+            console.info('propertiesToEdit', $scope.propertiesToEdit);
+           /*dataTypeResource.getById($scope.propertyToAdd.dataTypeId).then(function(dataType) {
+                for (var i = 0; i < $scope.results.length; i++) {
+                    if ($scope.propertyEditors.length < (i + 1)) {
+                        $scope.propertyEditors.push([]);
+                        $scope.propertyEditors[i].push({
+                            alias: dataType.selectedEditor + '-' + i,
+                            label: '',
+                            view: dataType.
+                        })
+                    }
+                }
+                console.info($scope.propertyToAdd.editor, result);
+            });*/
+            $scope.isSelectingProperty = false;
+        };  
+
+        /**
+         * @method exportAsCsv
+         * @returns {void}
+         * @description Called when the 'Export as CSV' button is clicked. Builds 
+         * a CSV file and downloads it.
+         */
         $scope.exportAsCsv = function() {
             var csvUrl = "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent";
             var data = {
@@ -65,17 +92,24 @@ angular
          * details to build a list of selectable properties.
          */
         $scope.loadDocType = function() {
-            console.info($scope.doctype);
+            console.info('doctype', $scope.doctype);
             if ($scope.doctype.id !== 0) {
-                $scope.getDoctype($scope.doctype.id).then(function(response) {
+                contentTypeResource.getById($scope.doctype.id).then(function(response) {
                     $scope.properties = $scope.buildPropertiesForDoctype(response);
-                    console.info($scope.properties);
+                    $scope.properties = $scope.sortArrayAlphaByProp($scope.properties, 'label');
+                    $scope.properties.unshift({label: '-Select Property-',id: 0});
+                    console.info('properties', $scope.properties);
                 });
             }
-        };        
+        };
+
+        $scope.openPropertySelection = function() {
+            $scope.isSelectingProperty = true;
+        };
 
         /**
         * @method openStartNodePicker
+        * @returns {void}
         * @description Opens the content picker dialog for the start node, and sends
         * the data returned to $scope.handleStartNodePickerSelection.
         */
@@ -87,6 +121,12 @@ angular
             dialogService.closeAll();
         };
 
+        /**
+         * @method search
+         * @returns {void}
+         * @description Called when 'Search' button is clicked. Requests a list of 
+         * matching content.
+         */
         $scope.search = function() {
             $scope.getContent($scope.startNode, $scope.doctype.alias);
         };
@@ -123,6 +163,12 @@ angular
             });
         };
 
+        /**
+         * @method buildPropertiesForDoctype
+         * @param {JSON} doctype
+         * @returns {Object[]}
+         * @description Builds an array of properties in the provided doctype.
+         */
         $scope.buildPropertiesForDoctype = function(doctype) {
             var properties = [];
             if (doctype && doctype.groups && doctype.groups.length > 0) {
@@ -138,20 +184,27 @@ angular
             return properties;
         };
 
+        /**
+         * @method getContent
+         * @param {Object} node
+         * @param {string} doctypeAlias
+         * @returns {void}
+         * @description Calls API for list of content with matching doctype alias 
+         * that is beneath the node.
+         */
         $scope.getContent = function(node, doctypeAlias) {
             bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
                 if (response && response.data) {
                     $scope.results = response.data;
-                    console.info($scope.results);
+                    $scope.propertiesToEdit = [];
+                    $scope.propertyEditors = [];
+                    $scope.resultProperties = $scope.properties;
+                    $scope.propertyToAdd = $scope.resultProperties[0];
+                    console.info('content results', $scope.results);
                 }
-                console.info(response);
             },function(error) {
-                console.info('Error', error);
+                console.error('Error with getContent() in bulkEdit.dashboard.controller.js: ', error);
             })
-        };
-
-        $scope.getDoctype = function(id) {
-            return contentTypeResource.getById(id);
         };
 
         /**

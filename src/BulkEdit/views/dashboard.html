@@ -40,29 +40,36 @@
             </div>
         </div>
         <div ng-show="results.length > 0">
-            <h4>Results</h4>
-            <div class="umb-table">
-                <div class="umb-table-head">
-                    <div class="umb-table-row">
-                        <div class="umb-table-cell">
-                        </div>
-                        <div class="umb-table-cell">
-                            Content Name
-                        </div>
-                        <div class="umb-table-cell">
-                            Id
-                        </div>
-                        <div class="umb-table-cell">
-                            <button type="button">+</button>
+            <h4>Results (Found {{results.length}} Documents)</h4>
+            <div class="bulk-edit-table">
+                <div class="head row">
+                    <div class="cell span2">Content Name</div>
+                    <div class="cell span1">Id</div>
+                    <div class="cell span2" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
+                    <div class="cell span2">
+                        <button 
+                            type="button" 
+                            ng-click="openPropertySelection()"
+                            ng-show="!isSelectingProperty">Add Field To Edit</button>
+                        <div ng-show="isSelectingProperty">
+                            <select
+                                ng-model="propertyToAdd"
+                                ng-options="x as x.label for x in resultProperties"></select>
+                            <button
+                                ng-click="addPropertyToEditList()"
+                                ng-disabled="propertyToAdd.id == 0">Add</button>
                         </div>
                     </div>
-                    <div class="umb-table-body">
-                        <div class="umb-table-row" ng-repeat="result in results">
-                            <div class="umb-table-cell"></div>
-                            <div class="umb-table-cell"><a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a></div>
-                            <div class="umb-table-cell">{{result.Id}}</div>
-                            <div class="umb-table-cell"></div>
+                </div>
+                <div class="body">
+                    <div class="row" ng-repeat="result in results">
+                        <div class="cell span2">
+                            <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
                         </div>
+                        <div class="cell span1">{{result.Id}}</div>
+                        <div class="cell span2" ng-repeat="prop in propertiesToEdit">
+                        </div>
+                        <div class="cell span2"></div>
                     </div>
                 </div>
             </div>
