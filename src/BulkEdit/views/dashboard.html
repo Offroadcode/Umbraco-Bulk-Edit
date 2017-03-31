@@ -62,12 +62,13 @@
                     </div>
                 </div>
                 <div class="body">
-                    <div class="row" ng-repeat="result in results">
+                    <div class="row" ng-repeat="result in results track by $index">
                         <div class="cell span2">
                             <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
                         </div>
                         <div class="cell span1">{{result.Id}}</div>
                         <div class="cell span2" ng-repeat="prop in propertiesToEdit">
+                            {{result[propertiesToEdit[$index].alias]}}
                         </div>
                         <div class="cell span2"></div>
                     </div>
