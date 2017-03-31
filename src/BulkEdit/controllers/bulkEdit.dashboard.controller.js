@@ -55,6 +55,7 @@ angular
          * details to build a list of selectable properties.
          */
         $scope.loadDocType = function() {
+            console.info($scope.doctype);
             /*$scope.properties = [];
             $scope.getDocTypeFromAlias($scope.docType).then(function(type) {
                 $scope.properties = $scope.buildPropertyListForDocType(type);
@@ -79,7 +80,8 @@ angular
         };
 
         $scope.search = function() {
-            $scope.results = [
+            $scope.getContent($scope.startNode, $scope.doctype);
+            /*$scope.results = [
                 {
                     name: "Golden Lion Hotel",
                     id: 1234
@@ -92,7 +94,7 @@ angular
                     name: "Some Other Hotel",
                     id: 1236
                 }
-            ]
+            ]*/
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////
@@ -116,8 +118,21 @@ angular
                     }
                     // Sort types alphabetically.
                     $scope.doctypes = $scope.sortArrayAlphaByProp($scope.doctypes, 'name');
+                    console.info('doctypes', $scope.doctypes);
                 }
             });
+        };
+
+        $scope.getContent = function(node, doctypeAlias) {
+            bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
+                if (response && response.data) {
+                    $scope.results = response.data;
+                    console.info($scope.results);
+                }
+                console.info(response);
+            },function(error) {
+                console.info('Error', error);
+            })
         };
 
         /**
