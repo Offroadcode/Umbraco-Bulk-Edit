@@ -1,17 +1,78 @@
 <div class="row bulk-edit" ng-controller="bulkEdit.dashboard.controller">
     <div class="span12">
         <h3>Bulk Edit</h3>
-        <div class="head">
-            <div>
-                <span ng-show="startNode.id !== 0">
-                    <p><b>Start Content:</b> <i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</p>
-                </span>
-                <span>
-                    <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
-                        <span ng-show="startNode.id == 0">Choose Start Content</span>
-                        <span ng-show="startNode.id !== 0">Change Start Content</span>
-                    </button>
-                </span>
+        <div class="head row">
+            <div class="span4">
+                <div>
+                    <span ng-show="startNode.id !== 0">
+                        <b>Start Content:</b> <a href="/umbraco/#/content/content/edit/{{startNode.id}}" ><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</a>
+                    </span> 
+                    <span>
+                        <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
+                            <span ng-show="startNode.id == 0">Choose Start Content</span>
+                            <span ng-show="startNode.id !== 0">Change</span>
+                        </button>
+                    </span>
+                    <br><br>
+                </div>
+                <div class="content-type-selector">
+                    <b>Content Type to edit:</b> 
+                    <select 
+                        ng-model="doctype" 
+                        ng-change="loadDocType()" 
+                        ng-options="x as x.name for x in doctypes">
+                    </select>
+                </div>
+                <button 
+                    type="button" 
+                    ng-click="search()" 
+                    ng-disabled="doctype.id == 0 || startNode.id == 0">Search</button>
+                <br/><br/>
+            </div>
+            <div class="span6">
+                <!-- Something will eventually go here -->
+            </div>
+            <div class="span2">
+                <button 
+                    type="button" 
+                    ng-click="exportAsCsv()"
+                    ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
+            </div>
+        </div>
+        <div ng-show="results.length > 0">
+            <h4>Results (Found {{results.length}} Documents)</h4>
+            <div class="bulk-edit-table">
+                <div class="head row">
+                    <div class="cell span2">Content Name</div>
+                    <div class="cell span1">Id</div>
+                    <div class="cell span2" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
+                    <div class="cell span2">
+                        <button 
+                            type="button" 
+                            ng-click="openPropertySelection()"
+                            ng-show="!isSelectingProperty">Add Field To Edit</button>
+                        <div ng-show="isSelectingProperty">
+                            <select
+                                ng-model="propertyToAdd"
+                                ng-options="x as x.label for x in resultProperties"></select>
+                            <button
+                                ng-click="addPropertyToEditList()"
+                                ng-disabled="propertyToAdd.id == 0">Add</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="body">
+                    <div class="row" ng-repeat="result in results track by $index">
+                        <div class="cell span2">
+                            <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
+                        </div>
+                        <div class="cell span1">{{result.Id}}</div>
+                        <div class="cell span2" ng-repeat="prop in propertiesToEdit">
+                            {{result[propertiesToEdit[$index].alias]}}
+                        </div>
+                        <div class="cell span2"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

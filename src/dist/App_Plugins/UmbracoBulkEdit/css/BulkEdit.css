@@ -1,2 +1,2 @@
-
+.bulk-edit .content-type-selector select{width:180px}.bulk-edit .bulk-edit-table{border:solid 2px black}.bulk-edit .bulk-edit-table .row{display:flex;align-items:stretch}.bulk-edit .bulk-edit-table .head{background:#ddd;font-weight:bold}.bulk-edit .bulk-edit-table .body .row{border-top:solid 1px black}.bulk-edit .bulk-edit-table .cell{padding:2px;border-left:solid 1px black}.bulk-edit .bulk-edit-table .cell:first-child{border-left:none}
 /*# sourceMappingURL=BulkEdit.css.map */
