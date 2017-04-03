@@ -284,6 +284,7 @@
     <Compile Include="ContentExporters\AllContentExporter.cs" />
     <Compile Include="ContentExporters\BaseContentExporter.cs" />
     <Compile Include="ContentExporters\PublishedContentExporter.cs" />
+    <Compile Include="Controllers\ContentController.cs" />
     <Compile Include="Controllers\CsvExportController.cs" />
     <Compile Include="Controllers\DatatypeController.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
