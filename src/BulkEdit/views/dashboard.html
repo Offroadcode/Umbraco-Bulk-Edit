@@ -67,8 +67,8 @@
                             <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
                         </div>
                         <div class="cell span1">{{result.Id}}</div>
-                        <div class="cell span2" ng-repeat="prop in propertiesToEdit">
-                            {{result[propertiesToEdit[$index].alias]}}
+                        <div class="cell span2" ng-repeat="editor in propertyEditors[$index]">
+                            <umb-editor model="editor"></umb-editor>
                         </div>
                         <div class="cell span2"></div>
                     </div>

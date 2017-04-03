@@ -11,7 +11,6 @@ angular
             $scope.setVariables();
             $scope.buildDocTypeOptions();
             console.info('init');
-            console.info('dataTypeResource', dataTypeResource);
         };
 
         /**
@@ -39,21 +38,23 @@ angular
         // Event Handler Methods /////////////////////////////////////////////////////
 
         $scope.addPropertyToEditList = function() {
-            $scope.propertiesToEdit.push($scope.propertyToAdd);
+            var property = $scope.propertyToAdd;
+            $scope.propertiesToEdit.push(property);
             console.info('propertiesToEdit', $scope.propertiesToEdit);
-           /*dataTypeResource.getById($scope.propertyToAdd.dataTypeId).then(function(dataType) {
+            $scope.getPropertyEditor(property.dataTypeId).then(function(editor) {
                 for (var i = 0; i < $scope.results.length; i++) {
-                    if ($scope.propertyEditors.length < (i + 1)) {
-                        $scope.propertyEditors.push([]);
-                        $scope.propertyEditors[i].push({
-                            alias: dataType.selectedEditor + '-' + i,
-                            label: '',
-                            view: dataType.
-                        })
+                    var thisEditor = JSON.parse(JSON.stringify(editor));
+                    var result = $scope.results[i];
+                    var value = result[property.alias];
+                    thisEditor.value = value;
+                    var editorsForThisResult = [];
+                    if ($scope.propertyEditors.length > i) {
+                        editorsForThisResult = $scope.propertyEditors[i];
                     }
+                    editorsForThisResult.push(thisEditor);
+                    $scope.propertyEditors[i] = editorsForThisResult;
                 }
-                console.info($scope.propertyToAdd.editor, result);
-            });*/
+            });
             $scope.isSelectingProperty = false;
         };  
 
@@ -205,6 +206,24 @@ angular
             },function(error) {
                 console.error('Error with getContent() in bulkEdit.dashboard.controller.js: ', error);
             })
+        };
+
+        $scope.getPropertyEditor = function(id) {
+            return bulkEditApi.getDataTypeById(id).then(function(result) {
+                if (result && result !== null) {
+                    var data = result.data;
+                    var editor = {
+                        alias: 'propEditor',
+                        config: data.config,
+                        label: 'Placeholder',
+                        view: data.view,
+                        value: null
+                    };
+                    return editor;
+                } else {
+                    return false;
+                }
+            });
         };
 
         /**
