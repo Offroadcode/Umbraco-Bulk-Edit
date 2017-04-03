@@ -1,6 +1,6 @@
 angular
     .module("umbraco")
-    .controller("bulkEdit.dashboard.controller", function($scope, contentTypeResource, dataTypeResource, dialogService, bulkEditApi) {
+    .controller("bulkEdit.dashboard.controller", function($scope, contentTypeResource, dataTypeResource, dialogService, notificationsService, bulkEditApi) {
         // Initialization Methods ////////////////////////////////////////////////////
 
         /**
@@ -21,6 +21,7 @@ angular
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
             $scope.isSelectingProperty = false;
+            $scope.isSaving = [];
             $scope.properties = [{label: '-Select Property-', id: 0}];
             $scope.resultProperties = [];
             $scope.propertiesToEdit = [];
@@ -122,6 +123,22 @@ angular
             dialogService.closeAll();
         };
 
+        $scope.saveNode = function(index) {
+            $scope.isSaving[index] = true;
+            var node = $scope.results[index];
+            notificationsService.info('Saving...', 'saving node ' + node.Id + '.');
+            var editors = $scope.propertyEditors[index];
+            for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
+                var propToEdit = $scope.propertiesToEdit[i];
+                var editor = editors[i];
+                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result){
+                    console.info(result);
+                    $scope.isSaving[index] = false;
+                    notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                });
+            }
+        };
+
         /**
          * @method search
          * @returns {void}
@@ -177,7 +194,10 @@ angular
                     var group = doctype.groups[i];
                     if (group && group.properties && group.properties.length > 0) {
                         for (var j = 0; j < group.properties.length; j++) {
-                            properties.push(group.properties[j]);
+                            var property = group.properties[j];
+                            if (property.view.indexOf('grid') < 0) {
+                                properties.push(property);
+                            }
                         }
                     }
                 }

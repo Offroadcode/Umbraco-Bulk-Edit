@@ -18,6 +18,14 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
                     "&rootId=" +
                     nodeId
             );
+        },
+        SavePropertyForNode: function(nodeId, propertyName, propertyValue) {
+            var data = {
+                nodeId: nodeId,
+                propertyName: propertyName,
+                propertyValue: propertyValue
+            };
+            return $http.get('/umbraco/backoffice/ORCCsv/Content/SavePropertyForNode/?nodeId=' + nodeId + '&propertyName=' + propertyName + '&propertyValue=' + propertyValue);
         }
     };
 });
