@@ -26,6 +26,10 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
                 propertyValue: propertyValue
             };
             return $http.get('/umbraco/backoffice/ORCCsv/Content/SavePropertyForNode/?nodeId=' + nodeId + '&propertyName=' + propertyName + '&propertyValue=' + propertyValue);
+        },
+        SaveNodes: function(nodes) {
+            var data = nodes;
+            return $http.post('/umbraco/backoffice/ORCCsv/Content/SaveNodes', data);
         }
     };
 });
