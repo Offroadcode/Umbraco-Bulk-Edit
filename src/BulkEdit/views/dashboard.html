@@ -26,6 +26,7 @@
                 <button 
                     type="button" 
                     ng-click="search()" 
+                    class="btn umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Search</button>
                 <br/><br/>
             </div>
@@ -36,6 +37,7 @@
                 <button 
                     type="button" 
                     ng-click="exportAsCsv()"
+                    class="btn umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
             </div>
         </div>
@@ -43,53 +45,73 @@
             <h4>Results (Found {{results.length}} Documents)</h4>
             <div class="bulk-edit-table">
                 <div class="head row">
-                    <div class="cell span3">Content Name</div>
+                    <div class="cell span2">Content Name</div>
                     <div class="cell span1">Id</div>
-                    <div class="cell span3" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
-                    <div class="cell span3" ng-show="propertiesToEdit.length < 2">
-                        <button 
-                            type="button" 
-                            ng-click="openPropertySelection()"
-                            ng-show="!isSelectingProperty">Add Field To Edit</button>
-                        <div ng-show="isSelectingProperty">
-                            <select
-                                ng-model="propertyToAdd"
-                                ng-options="x as x.label for x in resultProperties"></select>
-                            <button
-                                ng-click="addPropertyToEditList()"
-                                ng-disabled="propertyToAdd.id == 0">Add</button>
-                        </div>
-                    </div>
-                    <div class="cell span2">
+                    <div ng-class="getEditCellClass()" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
+                    <div class="cell span8" ng-show="propertiesToEdit.length == 0"></div>
+                    <div class="cell span1">
+                        <div ng-show="propertiesToEdit.length < 2">
+                            <button 
+                                type="button" 
+                                ng-click="openPropertySelection()"
+                                class="btn umb-button__button"
+                                ng-show="!isSelectingProperty">Add Field To Edit</button>
+                            <div ng-show="isSelectingProperty">
+                                <select
+                                    ng-model="propertyToAdd"
+                                    ng-options="x as x.label for x in resultProperties"></select>
+                                <button
+                                    ng-click="addPropertyToEditList()"
+                                    class="btn umb-button__button"
+                                    ng-disabled="propertyToAdd.id == 0">Add</button>
+                            </div> 
+                        </div>                       
                     </div>
                 </div>
                 <div class="body">
-                    <div class="row" ng-repeat="result in results track by $index">
-                        <div class="cell span3">
+                    <div class="row" ng-repeat="result in getCurrentPage()">
+                        <div class="cell span2">
                             <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
                         </div>
-                        <div class="cell span1">{{result.Id}}</div>
-                        <div class="cell span3" ng-repeat="editor in propertyEditors[$index]">
+                        <div class="cell span1">{{result.Id}} {{getResultIndex(result)}}</div>
+                        <div ng-class="getEditCellClass()" ng-repeat="editor in propertyEditors[getResultIndex(result)]">
                             <umb-editor model="editor"></umb-editor>
                         </div>
-                        <div class="cell span3" ng-show="propertiesToEdit.length < 2"></div>
-                        <div class="cell span2">
+                        <div class="cell span8" ng-show="propertiesToEdit.length == 0"></div>
+                        <div class="cell span1">
                             <div ng-show="propertiesToEdit.length > 0">
                                 <button 
                                     type="button" 
                                     class="btn umb-button__button btn-success"
-                                    ng-click="saveNode($index)"
-                                    ng-show="!isSaving[$index]">Save</button>
+                                    ng-click="saveNode(getResultIndex(result))"
+                                    ng-show="!isSaving[getResultIndex(result)]">Save</button>
+                                <!--<button
+                                    type="button" 
+                                    class="btn umb-button__button"
+                                    disabled
+                                    ng-show="!isSaving[$index] && !isDirty($index)"                              
+                                    >Save</button>-->
                                 <button 
                                     type="button"
                                     class="btn umb-button__button"
                                     disabled
-                                    ng-show="isSaving[$index]>Saving...</button>
+                                    ng-show="isSaving[getResultIndex(result)]">Saving...</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+            <br/>
+            <!-- end of table -->
+            <div class="row">
+                <div class="span11">
+                    <p>Pages: <span ng-repeat="page in getPages()"><button type="button" ng-click="gotoPage(page)">{{page}}</button> </span></p>
+                </div>
+                <div class="span1">
+                    <button type="button" class="btn umb-button__button btn-success" ng-click="saveAll()">Save All On Page</button>
+                </div>
+            </div>
+            <div><br/></div>
         </div>
     </div>
 </div>
