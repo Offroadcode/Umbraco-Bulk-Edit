@@ -8,7 +8,10 @@
                     <div class="bulk-edit bulk-edit-config">
                         <div>
                             <span>Items Per Page:</span> 
-                            <input class="no-margin per-page" type="number" ng-model="model.itemsPerPage" min="1" max="100" />
+                            <select 
+                                class="no-margin per-page" 
+                                ng-model="model.itemsPerPage"
+                                ng-options="x as x for x in options.perPage" />
                         </div>
                     </div>
                 </umb-pane>

@@ -3,6 +3,9 @@ angular.module('umbraco').controller('config.dialog.controller',
         
         $scope.init = function() {
             $scope.model = {};
+            $scope.options = {
+                perPage: [5, 10, 25]
+            };
             if ($scope.dialogData) {
                 $scope.model = $scope.dialogData;
             }
