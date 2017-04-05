@@ -27,6 +27,7 @@ angular
         $scope.setVariables = function() {
             $scope.config = {
                 hideIdCol: false,
+                hideNav: true,
                 itemsPerPage: 10
             };
             $scope.currentPage = 0;
@@ -130,6 +131,11 @@ angular
             console.info('onConfigDialogConfirmation', data);
             if (data) {
                 $scope.config = JSON.parse(JSON.stringify(data));
+                if ($scope.config.hideNav) {
+                    $scope.hideNav();
+                } else {
+                    $scope.showNav();
+                }
             }
         };
 
@@ -229,7 +235,9 @@ angular
          */
         $scope.search = function() {
             $scope.getContent($scope.startNode, $scope.doctype.alias);
-            $scope.hideNav();
+            if ($scope.config.hideNav) {
+                $scope.hideNav();
+            }
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////
@@ -516,6 +524,12 @@ angular
             var cw = document.querySelector('#contentwrapper');
             cw.setAttribute('style', '');
             window.removeEventListener('resize', $scope.resetWrapperOffsetOnResize);
+        };
+
+        $scope.showNav = function() {
+            // hide the tree.
+            appState.setGlobalState("showNavigation", true);
+            $scope.resetWrapperOffsetOnResize();
         };
 
         /**
