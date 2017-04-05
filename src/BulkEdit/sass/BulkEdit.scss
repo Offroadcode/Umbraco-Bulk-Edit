@@ -33,6 +33,10 @@
         width: 4.16666666665%;
     }
 
+    .row .span4-5 {
+        width: 37.4999999999%;
+    }
+
     .bulk-edit-table {
         border: solid 2px black;
         .row {
@@ -58,6 +62,12 @@
                 border-left: none;
             }
         }
+    }
+}
+
+.bulk-edit-config {
+    .option {
+        margin-bottom: 10px;
     }
 }
 

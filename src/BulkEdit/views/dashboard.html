@@ -83,11 +83,12 @@
                     <!-- Node Name -->
                     <div class="cell span2">Content Name</div>
                     <!-- Node ID -->
-                    <div class="cell span1 text-center">Id</div>
+                    <div ng-show="!config.hideIdCol" class="cell span1 text-center">Id</div>
                     <!-- Property Editors -->
                     <div ng-class="getEditCellClass()" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
                     <!-- Spacer if no Property Editors -->
-                    <div class="cell span8" ng-show="propertiesToEdit.length == 0"></div>
+                    <div class="cell span8" ng-show="propertiesToEdit.length == 0 && !config.hideIdCol"></div>
+                    <div class="cell span9" ng-show="propertiesToEdit.length == 0 && config.hideIdCol"></div>
                     <!-- Spacer -->
                     <div class="cell span1 no-border"></div>
                 </div>
@@ -100,13 +101,14 @@
                             <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
                         </div>
                         <!-- Node ID -->
-                        <div class="cell span1 text-center">{{result.Id}}</div>
+                        <div ng-show="!config.hideIdCol" class="cell span1 text-center">{{result.Id}}</div>
                         <!-- Property Editors -->
                         <div ng-class="getEditCellClass()" ng-repeat="editor in propertyEditors[getResultIndex(result)]">
                             <umb-editor model="editor"></umb-editor>
                         </div>
                         <!-- Spacer if No Property Editors -->
-                        <div class="cell span8" ng-show="propertiesToEdit.length == 0"></div>
+                        <div class="cell span8" ng-show="propertiesToEdit.length == 0 && !config.hideIdCol"></div>
+                        <div class="cell span9" ng-show="propertiesToEdit.length == 0 && config.hideIdCol"></div>
                         <!-- Save Button -->
                         <div class="cell span1">
                             <div ng-show="propertiesToEdit.length > 0">
@@ -136,7 +138,15 @@
             <!-- Page Navigation and Save Page Button -->
             <div class="row">
                 <div class="span10">
-                    <p>Pages: <span ng-repeat="page in getPages()"><button type="button" ng-click="gotoPage(page)">{{page}}</button> </span></p>
+                    <div ng-show="getPages().length > 1">
+                        <p>Pages: <span ng-repeat="page in getPages()">
+                            <button 
+                                class="btn umb-button__button" 
+                                type="button" 
+                                ng-class="{'btn-success': page==(currentPage + 1)}"
+                                ng-click="gotoPage(page)">{{page}}</button> 
+                        </span></p>
+                    </div>
                 </div>
                 <div class="span2">
                     <button type="button" class="btn pull-right umb-button__button btn-success" ng-click="saveAll()">Save All On Page</button>

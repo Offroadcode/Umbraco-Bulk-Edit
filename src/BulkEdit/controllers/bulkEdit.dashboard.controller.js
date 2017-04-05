@@ -26,6 +26,7 @@ angular
         */
         $scope.setVariables = function() {
             $scope.config = {
+                hideIdCol: false,
                 itemsPerPage: 10
             };
             $scope.currentPage = 0;
@@ -128,16 +129,14 @@ angular
         $scope.onConfigDialogConfirmation = function(data) {
             console.info('onConfigDialogConfirmation', data);
             if (data) {
-                $scope.config = {
-                    itemsPerPage: data.itemsPerPage
-                };
+                $scope.config = JSON.parse(JSON.stringify(data));
             }
         };
 
         $scope.openConfigDialog = function() {
             dialogService.open({
                 template: "/App_Plugins/UmbracoBulkEdit/views/configDialog.html",
-                dialogData: $scope.config,
+                dialogData: JSON.parse(JSON.stringify($scope.config)),
                 callback: $scope.onConfigDialogConfirmation
             });           
         }
@@ -343,9 +342,13 @@ angular
             }
             var length = $scope.propertiesToEdit.length;
             if (length < 2) {
-                classes += "span8"
+                if ($scope.config.hideIdCol) {
+                    classes += "span9"
+                } else {
+                    classes += "span8";
+                }
             } else {
-                classes += "span4";
+                classes += "span4-5";
             }
             return classes;
         };
