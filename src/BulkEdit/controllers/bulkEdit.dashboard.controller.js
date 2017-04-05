@@ -26,7 +26,7 @@ angular
         */
         $scope.setVariables = function() {
             $scope.config = {
-                itemsPerPage: 2
+                itemsPerPage: 10
             };
             $scope.currentPage = 0;
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
@@ -124,6 +124,23 @@ angular
                 });
             }
         };
+
+        $scope.onConfigDialogConfirmation = function(data) {
+            console.info('onConfigDialogConfirmation', data);
+            if (data) {
+                $scope.config = {
+                    itemsPerPage: data.itemsPerPage
+                };
+            }
+        };
+
+        $scope.openConfigDialog = function() {
+            dialogService.open({
+                template: "/App_Plugins/UmbracoBulkEdit/views/configDialog.html",
+                dialogData: $scope.config,
+                callback: $scope.onConfigDialogConfirmation
+            });           
+        }
 
         /**
          * @method openPropertySelection

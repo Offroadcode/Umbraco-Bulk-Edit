@@ -1,44 +1,52 @@
 <div class="row bulk-edit" ng-controller="bulkEdit.dashboard.controller">
     <div class="span12">
-        <h3>Bulk Edit</h3>
+        <div class="row">
+            <h3 class="span11">Bulk Edit</h3>
+            <div class="span1">
+                <button class="btn-none btn-settings pull-right" ng-click="openConfigDialog()" type="button">
+                    <i class="icon icon-settings"></i>
+                </button>
+            </div>
+        </div>
         <!-- Head Section -->
         <div class="section head row">
-            <div class="span4">
-                <div>
+            <div class="span8">
+                <p>
+                    <!-- Node Selection -->
                     <span ng-show="startNode.id !== 0">
-                        <b>Start Content:</b> <a href="/umbraco/#/content/content/edit/{{startNode.id}}" ><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</a>
-                    </span> 
-                    <span>
-                        <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
-                            <span ng-show="startNode.id == 0">Choose Start Content</span>
-                            <span ng-show="startNode.id !== 0">Change</span>
-                        </button>
+                        Find nodes under&nbsp;
                     </span>
-                    <br><br>
-                </div>
-                <div class="content-type-selector">
-                    <b>Content Type to edit:</b> 
-                    <select 
-                        ng-model="doctype" 
-                        ng-change="loadDocType()" 
-                        ng-options="x as x.name for x in doctypes">
-                    </select>
-                </div>
+                    <!-- Choose Node Button --> 
+                    <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
+                        <span ng-show="startNode.id == 0">Choose Start Node</span>
+                        <span ng-show="startNode.id !== 0"><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</span>
+                    </button>
+                    <span class="content-type-selector" ng-show="startNode.id !== 0">
+                        &nbsp;with the&nbsp;
+                        <select
+                            class="no-margin" 
+                            ng-model="doctype" 
+                            ng-change="loadDocType()" 
+                            ng-options="x as x.name for x in doctypes">
+                        </select>
+                        &nbsp;docType.
+                    </span>
+                </p>
                 <button 
                     type="button" 
                     ng-click="search()" 
                     class="btn umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Search</button>
-                <br/><br/>
             </div>
-            <div class="span6">
+            <div class="span2">
                 <!-- Something will eventually go here -->
             </div>
+            <!-- Export as CSV -->
             <div class="span2">
                 <button 
                     type="button" 
                     ng-click="exportAsCsv()"
-                    class="btn umb-button__button"
+                    class="btn pull-right umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
             </div>
         </div>

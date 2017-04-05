@@ -4,10 +4,33 @@
         margin: 0;
     }
 
+    .btn-none {
+        background: none;
+        border: none;
+    }
+
+    input.per-page {
+        width: 4em;
+    }
+
+    .btn-settings {
+        font-size: 24px;
+        line-height: 40px;
+        margin: 10px 0;
+        &:hover,
+        &:focus {
+            color: #000;
+        }
+    }
+
     .content-type-selector {
         select {
             width: 180px;
         }
+    }
+
+    .row .span0-5 {
+        width: 4.16666666665%;
     }
 
     .bulk-edit-table {
@@ -18,7 +41,9 @@
         }
         .head { 
             background: #ddd;
-            font-weight: bold;
+            .cell {
+                text-shadow: 0.5px 0 0 black;
+            }
         }
         .body {
             .row {

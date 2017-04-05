@@ -55,7 +55,8 @@ module.exports = function(grunt) {
                 src: [
                     "BulkEdit/bulkEdit.namespaces.js",
                     "BulkEdit/bulkEdit.api.js",
-                    "BulkEdit/controllers/bulkEdit.dashboard.controller.js"
+                    "BulkEdit/controllers/bulkEdit.dashboard.controller.js",
+                    "BulkEdit/controllers/config.dialog.controller.js"
                 ],
                 dest: "<%= basePath %>/js/BulkEdit.js"
             }
