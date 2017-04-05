@@ -47,6 +47,12 @@ angular
 
         // Event Handler Methods /////////////////////////////////////////////////////
 
+        /**
+         * @method addPropertyToEditList
+         * @returns {void}
+         * @description Adds the property selected to the edit list and creates 
+         * a matching editor for each search result.
+         */
         $scope.addPropertyToEditList = function() {
             var property = $scope.propertyToAdd;
             $scope.propertiesToEdit.push(property);
@@ -66,6 +72,8 @@ angular
                     $scope.isFieldDirty(i);
                 }
             });
+            // Reset the property to add to '-select property-' for select element.
+            $scope.propertyToAdd = $scope.getFilteredAvailableProperties()[0];
             $scope.isSelectingProperty = false;
         };  
 
@@ -83,16 +91,6 @@ angular
                 rootId: $scope.startNode.id
             };
             $scope.openPage('GET', csvUrl, data);
-        };
-
-        $scope.getResultIndex = function(result) {
-            var index = 0;
-            for (var i = 0; i < $scope.results.length; i++) {
-                if (result.Id == $scope.results[i].Id) {
-                    index = i;
-                }
-            }
-            return index;
         };
 
         /**
@@ -125,6 +123,12 @@ angular
             }
         };
 
+        /**
+         * @method openPropertySelection
+         * @returns {void}
+         * @description Toggles open the select element that contains the list of 
+         * properties to potentially edit.
+         */
         $scope.openPropertySelection = function() {
             $scope.isSelectingProperty = true;
         };
@@ -143,6 +147,11 @@ angular
             dialogService.closeAll();
         };
 
+        /**
+         * @method saveAll
+         * @returns {void}
+         * @description Saves all nodes on the page via API.
+         */
         $scope.saveAll = function() {
             notificationsService.info('Saving...', 'saving all nodes.');
             var nodesToSave = [];
@@ -158,7 +167,6 @@ angular
                     for (var j = 0; j < $scope.propertiesToEdit.length; j++) {
                         var propToEdit = $scope.propertiesToEdit[j];
                         var editor = editors[j];
-                        console.info(editor);
                         nodeToSave.properties.push({
                             alias: propToEdit.alias,
                             value: editor.value
@@ -173,6 +181,12 @@ angular
             });
         };
 
+        /**
+         * @method saveNode
+         * @param {number} index - The index of the result to save.
+         * @returns {void}
+         * @description Saves the result node at the indicated index.
+         */
         $scope.saveNode = function(index) {
             $scope.isSaving[index] = true;
             var node = $scope.results[index];
@@ -279,6 +293,12 @@ angular
             })
         };
 
+        /**
+         * @method getCurrentPage
+         * @returns {Object[]}
+         * @description Returns an array of results for displaying on the 
+         * current page. 
+         */
         $scope.getCurrentPage = function() {
             var results = [];
             var perPage = $scope.itemsPerPage;
@@ -292,8 +312,16 @@ angular
             return results;
         };
 
-        $scope.getEditCellClass = function() {
+        /**
+         * @method getEditCellClass
+         * @returns {string}
+         * @description Returns a string for the cell class with the needed spans.
+         */
+        $scope.getEditCellClass = function(defaultClass) {
             var classes = "cell ";
+            if (defaultClass && (typeof defaultClass) == "string") {
+                classes += defaultClass + " ";
+            }
             var length = $scope.propertiesToEdit.length;
             if (length < 2) {
                 classes += "span8"
@@ -303,6 +331,36 @@ angular
             return classes;
         };
 
+        /**
+         * @method getFilteredAvailableProperties
+         * @returns {Array}
+         * @description Returns a filtered selection of resultProperties that aren't 
+         * already selected.
+         */
+        $scope.getFilteredAvailableProperties = function() {
+            var available = [];
+            var props = $scope.resultProperties;
+            var selected = $scope.propertiesToEdit;
+            for (var i = 0; i < props.length; i++) {
+                var prop = props[i];
+                var propAlreadySelected = false;
+                for (var j = 0; j < selected.length; j++) {
+                    if (selected[j].id == prop.id) {
+                        propAlreadySelected = true;
+                    }
+                }
+                if (!propAlreadySelected) {
+                    available.push(prop);
+                }
+            }
+            return available;
+        };
+
+        /**
+         * @method getPages
+         * @returns {number[]}
+         * @description returns an array of page numbers.
+         */
         $scope.getPages = function() {
             var pages = [];
             var maxPage = Math.ceil($scope.results.length / $scope.itemsPerPage);
@@ -312,6 +370,13 @@ angular
             return pages;
         };
 
+        /**
+         * @method getPropertyEditor
+         * @param {number} id
+         * @returns {promise} - JSON
+         * @description Returns the editor config object for the datatype with 
+         * the matching datatype after fetching it from the API.
+         */
         $scope.getPropertyEditor = function(id) {
             return bulkEditApi.getDataTypeById(id).then(function(result) {
                 if (result && result !== null) {
@@ -328,6 +393,23 @@ angular
                     return false;
                 }
             });
+        };
+
+        /**
+         * @method getResultIndex
+         * @param {Object} result
+         * @returns {number}
+         * @description Looks at the node result passed to it and determines its 
+         * index in the array of $scope.results. Returns that number.
+         */
+        $scope.getResultIndex = function(result) {
+            var index = 0;
+            for (var i = 0; i < $scope.results.length; i++) {
+                if (result.Id == $scope.results[i].Id) {
+                    index = i;
+                }
+            }
+            return index;
         };
 
         $scope.gotoPage = function(page) {

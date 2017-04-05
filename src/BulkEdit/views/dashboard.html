@@ -59,7 +59,7 @@
                             <div ng-show="isSelectingProperty">
                                 <select
                                     ng-model="propertyToAdd"
-                                    ng-options="x as x.label for x in resultProperties"></select>
+                                    ng-options="x as x.label for x in getFilteredAvailableProperties()"></select>
                                 <button
                                     ng-click="addPropertyToEditList()"
                                     class="btn umb-button__button"
