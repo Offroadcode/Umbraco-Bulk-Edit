@@ -25,12 +25,14 @@ angular
         * @description Sets up the initial variables for the view.
         */
         $scope.setVariables = function() {
+            $scope.config = {
+                itemsPerPage: 2
+            };
             $scope.currentPage = 0;
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
             $scope.isSelectingProperty = false;
             $scope.isSaving = [];
-            $scope.itemsPerPage = 2;
             $scope.properties = [{label: '-Select Property-', id: 0}];
             $scope.resultProperties = [];
             $scope.propertiesToEdit = [];
@@ -155,7 +157,7 @@ angular
         $scope.saveAll = function() {
             notificationsService.info('Saving...', 'saving all nodes.');
             var nodesToSave = [];
-            var perPage = $scope.itemsPerPage;
+            var perPage = $scope.config.itemsPerPage;
             for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
                 if ($scope.results[i]) {
                     var node = $scope.results[i];
@@ -301,7 +303,7 @@ angular
          */
         $scope.getCurrentPage = function() {
             var results = [];
-            var perPage = $scope.itemsPerPage;
+            var perPage = $scope.config.itemsPerPage;
             if ($scope.results.length > $scope.currentPage * perPage) {
                 for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
                     if ($scope.results[i]) {
@@ -363,7 +365,7 @@ angular
          */
         $scope.getPages = function() {
             var pages = [];
-            var maxPage = Math.ceil($scope.results.length / $scope.itemsPerPage);
+            var maxPage = Math.ceil($scope.results.length / $scope.config.itemsPerPage);
             for (var i = 0; i < maxPage; i++) {
                 pages.push(i + 1);
             }

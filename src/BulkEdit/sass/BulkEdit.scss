@@ -1,4 +1,9 @@
 .bulk-edit {
+
+    .no-margin {
+        margin: 0;
+    }
+
     .content-type-selector {
         select {
             width: 180px;
@@ -23,7 +28,8 @@
         .cell {
             padding: 2px;
             border-left: solid 1px black;
-            &:first-child {
+            &:first-child,
+            &.no-border {
                 border-left: none;
             }
         }
