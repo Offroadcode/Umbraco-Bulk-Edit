@@ -449,9 +449,36 @@ angular
          */
         $scope.getPages = function() {
             var pages = [];
+            var current = $scope.currentPage;
+            var shouldAddFirst = false;
+            var shouldAddLast = false;
             var maxPage = Math.ceil($scope.results.length / $scope.config.itemsPerPage);
-            for (var i = 0; i < maxPage; i++) {
+            var max = 0;
+            var min = 0;
+            if (current < 6 && maxPage > 10) {
+                max = 9;
+                shouldAddLast = true;
+            } else if (maxPage < 11) {
+                max = maxPage - 1;
+            } else {
+                shouldAddFirst = true;
+                if (maxPage - current > 5) {
+                    shouldAddLast = true;
+                    max = current + 5;
+                    min = current - 4;
+                } else {
+                    min = maxPage - 10;
+                    max = maxPage - 1;
+                }
+            }
+            if (shouldAddFirst) {
+                pages.push(1);
+            }
+            for (var i = min; i <= max; i++) {
                 pages.push(i + 1);
+            }
+            if (shouldAddLast) {
+                pages.push(maxPage);
             }
             return pages;
         };
