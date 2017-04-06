@@ -39,6 +39,8 @@ You can also watch for changes using:
     grunt watch
     grunt watch --target="D:\inetpub\mysite"
 
+**IMPORTANT!:** In order to build the DLLs required by this project, you will need the MSBuild executable on your system. The easiest way to do this is to install [Visual Studio](https://www.visualstudio.com/), which will install MSbuild as well.
+
 If you want to build the package file (into a pkg folder), use:
 
     grunt umbraco
