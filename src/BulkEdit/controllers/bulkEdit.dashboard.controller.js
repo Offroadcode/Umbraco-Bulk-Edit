@@ -240,6 +240,7 @@ angular
         $scope.search = function() {
             $scope.getContent($scope.startNode, $scope.doctype.alias);
             if ($scope.config.hideNav) {
+                $scope.currentPage = 0;
                 $scope.hideNav();
             }
         };
@@ -266,7 +267,6 @@ angular
             }
             editors.push(editor);
             $scope.propertyEditors[index] = editors;
-            //$scope.isFieldDirty(i);
         };
 
         /**
@@ -556,21 +556,6 @@ angular
             window.addEventListener('resize', $scope.resetWrapperOffsetOnResize);
         };
 
-        $scope.isFieldDirty = function(index) {
-            var isDirty = false;
-            var result = $scope.results[index];
-            var editors = $scope.propertyEditors[index];
-            for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
-                var property = $scope.propertiesToEdit[i];
-                var originalValue = result[property.alias];
-                if (editors[i].value != originalValue) {
-                    isDirty = true;
-                }
-            }
-            console.info(index + ': ' + isDirty);
-            return isDirty;
-        };      
-
         /**
          * @method openPage
          * @param {string} verb - must be 'GET or 'POST'
@@ -596,9 +581,19 @@ angular
             form.submit();
         };
 
+        /**
+         * @method overwritePropValue
+         * @param {string} alias
+         * @param {any} value
+         * @param {number} index
+         * @returns {JSON}
+         * @description overwrites the property on the client-side version of the 
+         * result's property at the given index to sync it with the prop editor 
+         * value.
+         */
         $scope.overwritePropValue = function(alias, value, index) {
             $scope.results[index][alias] = value;
-            console.info($scope.results);
+            return $scope.results[index];
         }
 
         /**
