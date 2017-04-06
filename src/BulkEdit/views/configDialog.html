@@ -6,20 +6,45 @@
                     <h3>Bulk Edit Configuration</h3>
                     <hr/>
                     <div class="bulk-edit bulk-edit-config">
-                        <div class="option">
-                            <span>Hide ID Column:</span>
-                            <input type="checkbox" ng-model="model.hideIdCol" />
+                        <div class="option row row-fluid">
+                            <div class="span5">
+                                <span class="pull-right">Hide Breadcrumbs: </span>
+                            </div>
+                            <div class="span1"></div>
+                            <div class="span6">
+                                <input type="checkbox" ng-model="model.hideBreadcrumbs" />
+                            </div>
                         </div>
-                        <div class="option">
-                            <span>Hide Navigation:</span>
-                            <input type="checkbox" ng-model="model.hideNav" />
+                        <div class="option row row-fluid">
+                            <div class="span5">
+                                <span class="pull-right">Hide ID Column: </span>
+                            </div>
+                            <div class="span1"></div>
+                            <div class="span6">
+                                <input type="checkbox" ng-model="model.hideIdCol" />
+                            </div>
                         </div>
-                        <div class="option">
-                            <span>Items Per Page:</span> 
-                            <select 
-                                class="no-margin per-page" 
-                                ng-model="model.itemsPerPage"
-                                ng-options="x as x for x in options.perPage" />
+                        <div class="option row row-fluid">
+                            <div class="span5">
+                                <span class="pull-right">Hide Navigation: </span>
+                            </div>
+                            <div class="span1"></div>
+                            <div class="span6">
+                                <input type="checkbox" ng-model="model.hideNav" />
+                            </div class="span6">
+                        </div>
+                        <div class="option row row-fluid">
+                            <div class="span5">
+                                <span class="pull-right">Items Per Page:</span> 
+                            </div>
+                            <div class="span1"></div>
+                            <div class="span6">
+                                <select 
+                                    class="no-margin per-page" 
+                                    ng-model="model.itemsPerPage"
+                                    ng-options="x as x for x in options.perPage" 
+                                />
+                            </div>
                         </div>
                     </div>
                 </umb-pane>

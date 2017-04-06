@@ -26,6 +26,7 @@ angular
         */
         $scope.setVariables = function() {
             $scope.config = {
+                hideBreadcrumbs: false,
                 hideIdCol: false,
                 hideNav: true,
                 itemsPerPage: 10
