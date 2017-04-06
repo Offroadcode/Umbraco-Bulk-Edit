@@ -34,7 +34,9 @@ angular
             $scope.currentPage = 0;
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
+            $scope.haveSetEditorWatcher = false;
             $scope.isSelectingProperty = false;
+            $scope.isRowDirty = [];
             $scope.isSaving = [];
             $scope.properties = [{label: '-Select Property-', id: 0}];
             $scope.resultProperties = [];
@@ -62,22 +64,19 @@ angular
             var property = $scope.propertyToAdd;
             $scope.propertiesToEdit.push(property);
             console.info('propertiesToEdit', $scope.propertiesToEdit);
+            // Get the property editor for the property.
             $scope.getPropertyEditor(property.dataTypeId).then(function(editor) {
+                // Loop through all results.
                 for (var i = 0; i < $scope.results.length; i++) {
+                    // Add the editor to a list of editors for the result.
+                    console.info('editor', editor);
                     var thisEditor = JSON.parse(JSON.stringify(editor));
-                    var result = $scope.results[i];
-                    var value = result[property.alias];
-                    thisEditor.value = value;
-                    var editorsForThisResult = [];
-                    if ($scope.propertyEditors.length > i) {
-                        editorsForThisResult = $scope.propertyEditors[i];
-                    }
-                    editorsForThisResult.push(thisEditor);
-                    $scope.propertyEditors[i] = editorsForThisResult;
-                    $scope.isFieldDirty(i);
+                    $scope.addEditorForPropertyToResultItem(property.alias, thisEditor, i);
                 }
             });
-            // Reset the property to add to '-select property-' for select element.
+            // Start a watcher to see when the editor updates.
+            $scope.startWatchingEditors();
+            // Reset propertyToAdd to '-select property-' for select element.
             $scope.propertyToAdd = $scope.getFilteredAvailableProperties()[0];
             $scope.isSelectingProperty = false;
         };  
@@ -196,12 +195,12 @@ angular
                             alias: propToEdit.alias,
                             value: editor.value
                         });
+                        $scope.results[i][propToEdit.alias] = editor.value;
                     }
                     nodesToSave.push(nodeToSave);               
                 }
             }
-            bulkEditApi.SaveNodes(nodesToSave).then(function(result){
-                console.info(result);
+            bulkEditApi.SaveNodes(nodesToSave).then(function(result) {
                 notificationsService.success('Saved!', 'All nodes were successfully saved.');
             });
         };
@@ -220,10 +219,14 @@ angular
             for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
                 var propToEdit = $scope.propertiesToEdit[i];
                 var editor = editors[i];
-                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result){
-                    console.info(result);
+                var savedCount = 0;
+                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
                     $scope.isSaving[index] = false;
-                    notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                    $scope.overwritePropValue(propToEdit.alias, editor.value, index);
+                    savedCount += 1;
+                    if (savedCount >= $scope.propertiesToEdit.length) {
+                        notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                    }
                 });
             }
         };
@@ -242,6 +245,29 @@ angular
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////
+
+        /**
+         * @method addEditorForPropertyToResultItem
+         * @param {string} propertyAlias - the alias of the property the editor is for.
+         * @param {JSON} edtior - the config data for the editor
+         * @param {number} index - the index of the item to add.
+         * @returns {void}
+         * @description Assigns the property editor that matches the property alias 
+         * onto a result item, assigning the applicable value to the editor from 
+         * the result.
+         */
+        $scope.addEditorForPropertyToResultItem = function(propertyAlias, editor, index) {
+            var result = $scope.results[index];
+            var value = result[propertyAlias];
+            editor.value = value;
+            var editors = [];
+            if ($scope.propertyEditors.length > index) {
+                editors = $scope.propertyEditors[index];
+            }
+            editors.push(editor);
+            $scope.propertyEditors[index] = editors;
+            //$scope.isFieldDirty(i);
+        };
 
         /**
          * @method buildDocTypeOptions
@@ -295,6 +321,35 @@ angular
                 }
             }
             return properties;
+        };
+
+        /**
+         * @method checkIfResultRowsAreDirty
+         * @returns {boolean[]}
+         * @description Iterates through all result nodes, compares the state of 
+         * their editors with their original values for edited properties, and 
+         * determines if that row is "dirty" or not.
+         */
+        $scope.checkIfResultRowsAreDirty = function() {
+            var allEditors = JSON.parse(JSON.stringify($scope.propertyEditors));
+            var propsToEdit = JSON.parse(JSON.stringify($scope.propertiesToEdit));
+            var results = JSON.parse(JSON.stringify($scope.results));
+            for (var i = 0; i < results.length; i++) {
+                var isDirty = false;
+                var node = results[i];
+                var editors = allEditors[i];
+                if (editors && editors.length > 0) {
+                    for (var j = 0; j < editors.length; j++) {
+                        var propToEdit = propsToEdit[j];
+                        var editor = editors[j];
+                        if (node[propToEdit.alias] !== editor.value) {
+                            isDirty = true;
+                        }
+                    }
+                }
+                $scope.isRowDirty[i] = isDirty;
+            }
+            return $scope.isRowDirty;
         };
 
         /**
@@ -514,6 +569,11 @@ angular
             form.submit();
         };
 
+        $scope.overwritePropValue = function(alias, value, index) {
+            $scope.results[index][alias] = value;
+            console.info($scope.results);
+        }
+
         /**
          * @method resetWrapperOffsetOnResize
          * @returns {void}
@@ -548,7 +608,25 @@ angular
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             return array;    
-        };        
+        };
+
+        /**
+         * @method startWatchingEditors
+         * @returns {void}
+         * @description Starts $scope.watch on propertyEditors to help the scope 
+         * know when those are being touched.
+         */
+        $scope.startWatchingEditors = function() {
+            if (!$scope.haveSetEditorWatcher) {
+                $scope.$watch('propertyEditors', function () {
+                    $scope.checkIfResultRowsAreDirty();
+                }, true);
+                $scope.$watch('results', function () {
+                    $scope.checkIfResultRowsAreDirty();
+                }, true);                                        
+                $scope.haveSetEditorWatcher = true;
+            }
+        };
 
         // Call $scope.init() ////////////////////////////////////////////////////////
 

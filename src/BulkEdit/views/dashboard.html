@@ -110,24 +110,18 @@
                         <div class="cell span8" ng-show="propertiesToEdit.length == 0 && !config.hideIdCol"></div>
                         <div class="cell span9" ng-show="propertiesToEdit.length == 0 && config.hideIdCol"></div>
                         <!-- Save Button -->
-                        <div class="cell span1">
+                        <div class="cell span1 text-center">
                             <div ng-show="propertiesToEdit.length > 0">
                                 <button 
                                     type="button" 
-                                    class="btn umb-button__button btn-success"
+                                    class="btn umb-button__button"
+                                    ng-class="{'btn-success': isRowDirty[getResultIndex(result)]}"
+                                    ng-disabled="!isRowDirty[getResultIndex(result)] || isSaving[getResultIndex(result)]"
                                     ng-click="saveNode(getResultIndex(result))"
-                                    ng-show="!isSaving[getResultIndex(result)]">Save</button>
-                                <!--<button
-                                    type="button" 
-                                    class="btn umb-button__button"
-                                    disabled
-                                    ng-show="!isSaving[$index] && !isDirty($index)"                              
-                                    >Save</button>-->
-                                <button 
-                                    type="button"
-                                    class="btn umb-button__button"
-                                    disabled
-                                    ng-show="isSaving[getResultIndex(result)]">Saving...</button>
+                                    ng-show="!isSaving[getResultIndex(result)]">
+                                        <span ng-show="!isSaving[getResultIndex(result)]">Save</span>
+                                        <span ng-show="isSaving[getResultIndex(result)]">Saving...</span>
+                                </button>
                             </div>
                         </div>
                     </div>
