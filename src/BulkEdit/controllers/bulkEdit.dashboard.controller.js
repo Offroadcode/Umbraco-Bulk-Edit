@@ -17,6 +17,7 @@ angular
         $scope.init = function() {
             $scope.setVariables();
             $scope.buildDocTypeOptions();
+            $scope.getSavedSearches();
             console.info('init');
         };
 
@@ -44,6 +45,8 @@ angular
             $scope.propertyEditors = [];
             $scope.propertyToAdd = $scope.properties[0];
             $scope.results = [];
+            $scope.savedSearches = [];
+            $scope.showSavedSearch = false;
             $scope.startNode = {
                 icon: '',
                 id: 0,
@@ -200,7 +203,7 @@ angular
                     nodesToSave.push(nodeToSave);               
                 }
             }
-            bulkEditApi.SaveNodes(nodesToSave).then(function(result) {
+            bulkEditApi.saveNodes(nodesToSave).then(function(result) {
                 notificationsService.success('Saved!', 'All nodes were successfully saved.');
             });
         };
@@ -220,7 +223,7 @@ angular
                 var propToEdit = $scope.propertiesToEdit[i];
                 var editor = editors[i];
                 var savedCount = 0;
-                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
+                bulkEditApi.savePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
                     $scope.isSaving[index] = false;
                     $scope.overwritePropValue(propToEdit.alias, editor.value, index);
                     savedCount += 1;
@@ -238,12 +241,21 @@ angular
          * matching content.
          */
         $scope.search = function() {
-            $scope.getContent($scope.startNode, $scope.doctype.alias);
+            $scope.getContent($scope.startNode, $scope.doctype.alias).then(function(results) {
+                bulkEditApi.postSavedSearch('All ' + $scope.doctype.alias + ' under ' + $scope.startNode.name, $scope.startNode.id, $scope.doctype.alias).then (function(response) {
+                    $scope.getSavedSearches();
+                });
+
+            });
             if ($scope.config.hideNav) {
                 $scope.currentPage = 0;
                 $scope.hideNav();
             }
         };
+
+        $scope.toggleSavedSearchPanel = function() {
+            $scope.showSavedSearch = !$scope.showSavedSearch;
+        }
 
         // Helper Methods ////////////////////////////////////////////////////////////
 
@@ -361,13 +373,14 @@ angular
          * that is beneath the node.
          */
         $scope.getContent = function(node, doctypeAlias) {
-            bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
+            return bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
                 if (response && response.data) {
                     $scope.results = response.data;
                     $scope.propertiesToEdit = [];
                     $scope.propertyEditors = [];
                     $scope.resultProperties = $scope.properties;
                     $scope.propertyToAdd = $scope.resultProperties[0];
+                    return $scope.results;
                     console.info('content results', $scope.results);
                 }
             },function(error) {
@@ -440,6 +453,15 @@ angular
                 }
             }
             return available;
+        };
+
+        $scope.getJsonProp = function(stringifiedJSON, paramName) {
+            try {
+                var jsonAsObject = JSON.parse(stringifiedJSON);
+                return jsonAsObject[paramName];
+            } catch(err) {
+                return "";
+            }
         };
 
         /**
@@ -523,6 +545,13 @@ angular
                 }
             }
             return index;
+        };
+
+        $scope.getSavedSearches = function() {
+            bulkEditApi.getAllSavedSearches().then(function(response) {
+                $scope.savedSearches = response.data.results;
+                console.info($scope.savedSearches);
+            });
         };
 
         $scope.gotoPage = function(page) {
