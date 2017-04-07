@@ -37,6 +37,13 @@
         width: 37.4999999999%;
     }
 
+    .sidebar-buttons {
+        .wrapper {
+            margin-bottom: 0.5em;
+            overflow: auto;
+        }
+    }
+
     .bulk-edit-table {
         border: solid 2px black;
         .row {
