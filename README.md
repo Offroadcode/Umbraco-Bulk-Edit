@@ -11,7 +11,7 @@ An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of
 
 ### Build
 
-You can build this project into a releasable distribition in the `/src/dist/` folder with either of the following commands:
+You can build this project into a releasable distribution in the `/src/dist/` folder with either of the following commands:
 
     grunt
 

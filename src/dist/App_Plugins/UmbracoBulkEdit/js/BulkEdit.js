@@ -1,5 +1,8 @@
 angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
     return {
+        getAllSavedSearches: function() {
+            return $http.get("/Umbraco/backoffice/ORCCsv/Database/getAllSavedSearches");
+        },
         getCsvExport: function(nodeId, doctypeAlias) {
             return $http.get(
                 "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent?format=Csv&contentTypeAlias=" +
@@ -19,7 +22,17 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
                     nodeId
             );
         },
-        SavePropertyForNode: function(nodeId, propertyName, propertyValue) {
+        getSavedSearchById: function(id) {
+            return $http.get('/Umbraco/backoffice/ORCCsv/Database/GetSavedSearchById/?id=' + id);
+        },
+        postSavedSearch: function(name, options) {
+            var data = {
+                name: name,
+                options: options
+            };
+            return $http.post('/Umbraco/backoffice/ORCCsv/Database/PostSavedSearch', data);
+        },
+        savePropertyForNode: function(nodeId, propertyName, propertyValue) {
             var data = {
                 nodeId: nodeId,
                 propertyName: propertyName,
@@ -27,7 +40,7 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
             };
             return $http.get('/umbraco/backoffice/ORCCsv/Content/SavePropertyForNode/?nodeId=' + nodeId + '&propertyName=' + propertyName + '&propertyValue=' + propertyValue);
         },
-        SaveNodes: function(nodes) {
+        saveNodes: function(nodes) {
             var data = nodes;
             return $http.post('/umbraco/backoffice/ORCCsv/Content/SaveNodes', data);
         }
@@ -54,6 +67,14 @@ angular
             $scope.setVariables();
             $scope.buildDocTypeOptions();
             console.info('init');
+            bulkEditApi.postSavedSearch('Test Search', '{rootId: 0, alias: "Fred"}').then(function(response) {
+                console.info(response);
+                bulkEditApi.getAllSavedSearches().then(function(response2) {
+                    console.info(response2);
+                });
+            }, function(error) {
+                console.info('error', error);
+            });
         };
 
         /**
@@ -236,7 +257,7 @@ angular
                     nodesToSave.push(nodeToSave);               
                 }
             }
-            bulkEditApi.SaveNodes(nodesToSave).then(function(result) {
+            bulkEditApi.saveNodes(nodesToSave).then(function(result) {
                 notificationsService.success('Saved!', 'All nodes were successfully saved.');
             });
         };
@@ -256,7 +277,7 @@ angular
                 var propToEdit = $scope.propertiesToEdit[i];
                 var editor = editors[i];
                 var savedCount = 0;
-                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
+                bulkEditApi.savePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
                     $scope.isSaving[index] = false;
                     $scope.overwritePropValue(propToEdit.alias, editor.value, index);
                     savedCount += 1;
