@@ -1,4 +1,4 @@
-# Umbraco-Bulk-Edit
+# Umbraco-Bulk-Edit &middot; [![version](https://img.shields.io/badge/version-1.0.0-green.svg)]
 
 An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of content.
 
