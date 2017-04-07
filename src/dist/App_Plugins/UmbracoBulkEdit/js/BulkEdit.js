@@ -22,13 +22,13 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
                     nodeId
             );
         },
-        getSavedSearchById: function(id) {
-            return $http.get('/Umbraco/backoffice/ORCCsv/Database/GetSavedSearchById/?id=' + id);
+        getSavedSearchByGuid: function(guid) {
+            return $http.get('/Umbraco/backoffice/ORCCsv/Database/GetSavedSearchById/?guid=' + guid);
         },
-        postSavedSearch: function(name, options) {
+        postSavedSearch: function(name, rootId, alias) {
             var data = {
                 name: name,
-                options: options
+                options: JSON.stringify({rootId: rootId, alias: alias})
             };
             return $http.post('/Umbraco/backoffice/ORCCsv/Database/PostSavedSearch', data);
         },
@@ -66,15 +66,8 @@ angular
         $scope.init = function() {
             $scope.setVariables();
             $scope.buildDocTypeOptions();
+            $scope.getSavedSearches();
             console.info('init');
-            bulkEditApi.postSavedSearch('Test Search', '{rootId: 0, alias: "Fred"}').then(function(response) {
-                console.info(response);
-                bulkEditApi.getAllSavedSearches().then(function(response2) {
-                    console.info(response2);
-                });
-            }, function(error) {
-                console.info('error', error);
-            });
         };
 
         /**
@@ -101,6 +94,8 @@ angular
             $scope.propertyEditors = [];
             $scope.propertyToAdd = $scope.properties[0];
             $scope.results = [];
+            $scope.savedSearches = [];
+            $scope.showSavedSearch = false;
             $scope.startNode = {
                 icon: '',
                 id: 0,
@@ -295,12 +290,21 @@ angular
          * matching content.
          */
         $scope.search = function() {
-            $scope.getContent($scope.startNode, $scope.doctype.alias);
+            $scope.getContent($scope.startNode, $scope.doctype.alias).then(function(results) {
+                bulkEditApi.postSavedSearch('All ' + $scope.doctype.alias + ' under ' + $scope.startNode.name, $scope.startNode.id, $scope.doctype.alias).then (function(response) {
+                    $scope.getSavedSearches();
+                });
+
+            });
             if ($scope.config.hideNav) {
                 $scope.currentPage = 0;
                 $scope.hideNav();
             }
         };
+
+        $scope.toggleSavedSearchPanel = function() {
+            $scope.showSavedSearch = !$scope.showSavedSearch;
+        }
 
         // Helper Methods ////////////////////////////////////////////////////////////
 
@@ -418,13 +422,14 @@ angular
          * that is beneath the node.
          */
         $scope.getContent = function(node, doctypeAlias) {
-            bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
+            return bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
                 if (response && response.data) {
                     $scope.results = response.data;
                     $scope.propertiesToEdit = [];
                     $scope.propertyEditors = [];
                     $scope.resultProperties = $scope.properties;
                     $scope.propertyToAdd = $scope.resultProperties[0];
+                    return $scope.results;
                     console.info('content results', $scope.results);
                 }
             },function(error) {
@@ -497,6 +502,15 @@ angular
                 }
             }
             return available;
+        };
+
+        $scope.getJsonProp = function(stringifiedJSON, paramName) {
+            try {
+                var jsonAsObject = JSON.parse(stringifiedJSON);
+                return jsonAsObject[paramName];
+            } catch(err) {
+                return "";
+            }
         };
 
         /**
@@ -580,6 +594,13 @@ angular
                 }
             }
             return index;
+        };
+
+        $scope.getSavedSearches = function() {
+            bulkEditApi.getAllSavedSearches().then(function(response) {
+                $scope.savedSearches = response.data.results;
+                console.info($scope.savedSearches);
+            });
         };
 
         $scope.gotoPage = function(page) {

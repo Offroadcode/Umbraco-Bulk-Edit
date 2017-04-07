@@ -42,16 +42,24 @@
                 <!-- Something will eventually go here -->
             </div>
             <!-- Export as CSV -->
-            <div class="span2">
-                <button 
-                    type="button" 
-                    ng-click="exportAsCsv()"
-                    class="btn pull-right umb-button__button"
-                    ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
+            <div class="span2 sidebar-buttons">
+                <div class="wrapper">
+                    <button 
+                        type="button" 
+                        ng-click="exportAsCsv()"
+                        class="btn pull-right umb-button__button"
+                        ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
+                </div>
+                <div class="wrapper" ng-show="savedSearches.length > 0">
+                    <button type="button" class="btn pull-right umb-button__button" ng-click="toggleSavedSearchPanel()">
+                        <span ng-show="!showSavedSearch">Load A Saved Search</span>
+                        <span ng-show="showSavedSearch">Hide Saved Searches</span>
+                    </button>
+                </div>
             </div>
         </div>
         <!-- Results Section -->
-        <div class="section" ng-show="results.length > 0">
+        <div class="section" ng-show="results.length > 0 && !showSavedSearch">
             <!-- Results Headline -->
             <div class="row">
                 <h4 class="span9">Results (Found {{results.length}} Documents)</h4>
@@ -147,6 +155,42 @@
                 </div>
             </div>
             <div><br/></div>
+        </div>
+        <!-- Saved Searches -->
+        <div class="section" ng-show="showSavedSearch">
+            <!-- Headline -->
+            <h4>Saved Previous Searches</h4>
+            <div class="bulk-edit-table">
+                <!-- Table Header -->
+                <div class="head row">
+                    <div class="cell span1"></div>
+                    <!-- Search Name -->
+                    <div class="cell span4">Search Name</div>
+                    <!-- Root ID -->
+                    <div class="cell span1 text-center">Root Node ID</div>
+                    <!-- DocType -->
+                    <div class="cell span2 text-center">DocType</div>
+                    <!-- Spacer -->
+                    <div class="cell span4"></div>
+                </div>
+                <!-- Table Body -->
+                <div class="body">
+                    <div class="row" ng-repeat="search in savedSearches">
+                        <!-- Search Button -->
+                        <div class="cell span1 text-center">
+                            <button class="btn umb-button__button" type="button">Search</button>
+                        </div>
+                        <!-- Search Name -->
+                        <div class="cell span4">{{search.Name}}</div>
+                        <!-- Root ID -->
+                        <div class="cell span1 text-center">{{getJsonProp(search.Options, 'rootId')}}</div>
+                        <!-- DocType -->
+                        <div class="cell span2 text-center">{{getJsonProp(search.Options, 'alias')}}</div>
+                        <!-- Spacer -->
+                        <div class="cell span4"></div>                        
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
