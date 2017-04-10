@@ -17,6 +17,19 @@
 
         [System.Web.Http.AcceptVerbs("GET", "POST")]
         [System.Web.Http.HttpGet]
+        public HttpResponseMessage DeleteSavedSearchByGuid(string guid)
+        {
+            var db = ApplicationContext.Current.DatabaseContext.Database;
+            db.Execute("DELETE * from BulkSavedSearch WHERE Guid=@0", guid);
+            var response = buildSerializedResponse(new
+            {
+                success = true
+            });
+            return response;
+        }
+
+        [System.Web.Http.AcceptVerbs("GET", "POST")]
+        [System.Web.Http.HttpGet]
         public HttpResponseMessage GetAllSavedSearches()
         {
             var db = ApplicationContext.Current.DatabaseContext.Database;

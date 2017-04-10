@@ -3,6 +3,7 @@ angular
     .controller("bulkEdit.dashboard.controller", function($scope,
         appState, 
         bulkEditApi,
+        contentResource, 
         contentTypeResource, 
         dataTypeResource, 
         dialogService, 
@@ -129,7 +130,7 @@ angular
                 });
             }
         };
-
+ 
         $scope.onConfigDialogConfirmation = function(data) {
             console.info('onConfigDialogConfirmation', data);
             if (data) {
@@ -142,13 +143,28 @@ angular
             }
         };
 
+        $scope.onDeleteSavedSearchDialogConfirmation = function(data) {
+            console.info('data', data);
+            bulkEditApi.deleteSavedSearchByGuid(data.guid).then(function(result) {
+                $scope.getSavedSearches();
+            });
+        };  
+
         $scope.openConfigDialog = function() {
             dialogService.open({
                 template: "/App_Plugins/UmbracoBulkEdit/views/configDialog.html",
                 dialogData: JSON.parse(JSON.stringify($scope.config)),
                 callback: $scope.onConfigDialogConfirmation
             });           
-        }
+        };
+
+        $scope.openDeleteSavedSearchDialog = function(guid) {
+            dialogService.open({
+                template: "/App_Plugins/UmbracoBulkEdit/views/deleteSavedSearchDialog.html",
+                dialogData: {guid: guid},
+                callback: $scope.onDeleteSavedSearchDialogConfirmation
+            }); 
+        };
 
         /**
          * @method openPropertySelection
@@ -172,6 +188,28 @@ angular
                 callback: $scope.handleStartNodePickerSelection
             });
             dialogService.closeAll();
+        };
+
+        /**
+         * @method runSavedSearch
+         * @param {JSON} search
+         * @returns {void}
+         * @description Run a previously saved search by setting node id and 
+         * alias then triggering $scope.search().
+         */
+        $scope.runSavedSearch = function(search) {
+            var options = JSON.parse(search.Options);
+            contentResource.getById(options.rootId).then(function(data) {
+                $scope.startNode = data;
+                for (var i = 0; i < $scope.doctypes.length; i++) {
+                    var doctype = $scope.doctypes[i];
+                    if (doctype.alias == options.alias) {
+                        $scope.doctype = $scope.doctypes[i];
+                    }
+                }
+                $scope.search();
+            });
+
         };
 
         /**
@@ -242,10 +280,8 @@ angular
          */
         $scope.search = function() {
             $scope.getContent($scope.startNode, $scope.doctype.alias).then(function(results) {
-                bulkEditApi.postSavedSearch('All ' + $scope.doctype.alias + ' under ' + $scope.startNode.name, $scope.startNode.id, $scope.doctype.alias).then (function(response) {
-                    $scope.getSavedSearches();
-                });
-
+                $scope.showSavedSearch = false;
+                $scope.saveSearchIfUnique($scope.startNode, $scope.doctype);
             });
             if ($scope.config.hideNav) {
                 $scope.currentPage = 0;
@@ -385,7 +421,7 @@ angular
                 }
             },function(error) {
                 console.error('Error with getContent() in bulkEdit.dashboard.controller.js: ', error);
-            })
+            });
         };
 
         /**
@@ -548,9 +584,9 @@ angular
         };
 
         $scope.getSavedSearches = function() {
-            bulkEditApi.getAllSavedSearches().then(function(response) {
+            return bulkEditApi.getAllSavedSearches().then(function(response) {
                 $scope.savedSearches = response.data.results;
-                console.info($scope.savedSearches);
+                return response.data.results;
             });
         };
 
@@ -637,6 +673,36 @@ angular
             cw.setAttribute('style', '');
             window.removeEventListener('resize', $scope.resetWrapperOffsetOnResize);
         };
+
+        /**
+         * @method saveSearchIfUnique
+         * @param {JSON} startNode
+         * @param {JSON} docType
+         * @returns {promise}
+         * @description If we haven't saved this search before, save a new one.
+         */
+        $scope.saveSearchIfUnique = function(startNode, docType) {
+            var searchName = 'All ' + docType.alias + ' under ' + startNode.name;
+            var isUnique = true;
+            // Loop through every existing saved search to make sure we're not 
+            // requesting to save a duplicate.
+            for (var i = 0; i < $scope.savedSearches.length; i++) {
+                var search = $scope.savedSearches[i];
+                var options = JSON.parse(search.Options);
+                if (options.rootId == startNode.id && options.alias == docType.alias) {
+                    isUnique = false;
+                }
+            }
+            // If it's unique, go ahead and post the search then update our 
+            // saved searches from the server.
+            if (isUnique) {
+                return bulkEditApi.postSavedSearch(searchName, startNode.id, docType.alias).then(function(response) {
+                    return $scope.getSavedSearches();
+                });
+            } else {
+                return $scope.savedSearches;
+            }
+        }
 
         $scope.showNav = function() {
             // hide the tree.

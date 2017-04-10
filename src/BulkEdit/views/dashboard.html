@@ -60,6 +60,7 @@
         </div>
         <!-- Results Section -->
         <div class="section" ng-show="results.length > 0 && !showSavedSearch">
+            <hr />
             <!-- Results Headline -->
             <div class="row">
                 <h4 class="span9">Results (Found {{results.length}} Documents)</h4>
@@ -158,6 +159,7 @@
         </div>
         <!-- Saved Searches -->
         <div class="section" ng-show="showSavedSearch">
+            <hr />
             <!-- Headline -->
             <h4>Saved Previous Searches</h4>
             <div class="bulk-edit-table">
@@ -178,7 +180,7 @@
                     <div class="row" ng-repeat="search in savedSearches">
                         <!-- Search Button -->
                         <div class="cell span1 text-center">
-                            <button class="btn umb-button__button" type="button">Search</button>
+                            <button class="btn umb-button__button" type="button" ng-click="runSavedSearch(search)">Search</button>
                         </div>
                         <!-- Search Name -->
                         <div class="cell span4">{{search.Name}}</div>
@@ -187,7 +189,12 @@
                         <!-- DocType -->
                         <div class="cell span2 text-center">{{getJsonProp(search.Options, 'alias')}}</div>
                         <!-- Spacer -->
-                        <div class="cell span4"></div>                        
+                        <div class="cell span3"></div>
+                        <div class="cell span1 no-border">
+                            <span class="pull-right">
+                            <button type="button" class="btn umb-button__button" ng-click="openDeleteSavedSearchDialog(search.Guid)">X</button>&nbsp;
+                            </span>
+                        </div>                    
                     </div>
                 </div>
             </div>
