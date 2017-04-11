@@ -19,7 +19,7 @@
         margin: 10px 0;
         &:hover,
         &:focus {
-            color: #000;
+            color: #000; 
         }
     }
 
@@ -53,7 +53,7 @@
         .head { 
             background: #ddd;
             .cell {
-                text-shadow: 0.5px 0 0 black;
+                //text-shadow: 0.5px 0 0 black;
             }
         }
         .body {
@@ -62,7 +62,7 @@
             }
         }
         .cell {
-            padding: 2px;
+            padding: 4px;
             border-left: solid 1px black;
             &:first-child,
             &.no-border {
