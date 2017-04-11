@@ -1,7 +1,46 @@
 .bulk-edit {
+
+    .no-margin {
+        margin: 0;
+    }
+
+    .btn-none {
+        background: none;
+        border: none;
+    }
+
+    select.per-page {
+        width: 4em;
+    }
+
+    .btn-settings {
+        font-size: 24px;
+        line-height: 40px;
+        margin: 10px 0;
+        &:hover,
+        &:focus {
+            color: #000;
+        }
+    }
+
     .content-type-selector {
         select {
             width: 180px;
+        }
+    }
+
+    .row .span0-5 {
+        width: 4.16666666665%;
+    }
+
+    .row .span4-5 {
+        width: 37.4999999999%;
+    }
+
+    .sidebar-buttons {
+        .wrapper {
+            margin-bottom: 0.5em;
+            overflow: auto;
         }
     }
 
@@ -13,7 +52,9 @@
         }
         .head { 
             background: #ddd;
-            font-weight: bold;
+            .cell {
+                text-shadow: 0.5px 0 0 black;
+            }
         }
         .body {
             .row {
@@ -23,10 +64,17 @@
         .cell {
             padding: 2px;
             border-left: solid 1px black;
-            &:first-child {
+            &:first-child,
+            &.no-border {
                 border-left: none;
             }
         }
+    }
+}
+
+.bulk-edit-config {
+    .option {
+        margin-bottom: 10px;
     }
 }
 

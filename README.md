@@ -1,4 +1,4 @@
-# Umbraco-Bulk-Edit
+# Umbraco-Bulk-Edit &middot; ![version](https://img.shields.io/badge/version-1.0.0-green.svg)
 
 An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of content.
 
@@ -11,7 +11,7 @@ An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of
 
 ### Build
 
-You can build this project into a releasable distribition in the `/src/dist/` folder with either of the following commands:
+You can build this project into a releasable distribution in the `/src/dist/` folder with either of the following commands:
 
     grunt
 
@@ -38,6 +38,8 @@ You can also watch for changes using:
 
     grunt watch
     grunt watch --target="D:\inetpub\mysite"
+
+**IMPORTANT!:** In order to build the DLLs required by this project, you will need the MSBuild executable on your system. The easiest way to do this is to install [Visual Studio](https://www.visualstudio.com/), which will install MSbuild as well.
 
 If you want to build the package file (into a pkg folder), use:
 

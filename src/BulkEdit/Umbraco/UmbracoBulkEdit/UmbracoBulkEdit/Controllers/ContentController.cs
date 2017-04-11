@@ -6,9 +6,8 @@
     using System.Net.Http.Headers;
     using System.Web.Http;
     using System.Collections.Generic;
-    using ORCCsv.Models;/// <summary>
-                        /// The content api controller.
-                        /// </summary>
+    using ORCCsv.Models;
+
     [PluginController("ORCCsv")] 
     public class ContentController : UmbracoAuthorizedApiController
     {

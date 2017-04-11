@@ -3,6 +3,7 @@ angular
     .controller("bulkEdit.dashboard.controller", function($scope,
         appState, 
         bulkEditApi,
+        contentResource, 
         contentTypeResource, 
         dataTypeResource, 
         dialogService, 
@@ -17,7 +18,12 @@ angular
         $scope.init = function() {
             $scope.setVariables();
             $scope.buildDocTypeOptions();
+<<<<<<< HEAD
             console.info('init'); 
+=======
+            $scope.getSavedSearches();
+            console.info('init');
+>>>>>>> origin/master
         };
 
         /**
@@ -25,18 +31,27 @@ angular
         * @description Sets up the initial variables for the view.
         */
         $scope.setVariables = function() {
+            $scope.config = {
+                hideBreadcrumbs: false,
+                hideIdCol: false,
+                hideNav: true,
+                itemsPerPage: 10
+            };
             $scope.currentPage = 0;
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
+            $scope.haveSetEditorWatcher = false;
             $scope.isSelectingProperty = false;
+            $scope.isRowDirty = [];
             $scope.isSaving = [];
-            $scope.itemsPerPage = 2;
             $scope.properties = [{label: '-Select Property-', id: 0}];
             $scope.resultProperties = [];
             $scope.propertiesToEdit = [];
             $scope.propertyEditors = [];
             $scope.propertyToAdd = $scope.properties[0];
             $scope.results = [];
+            $scope.savedSearches = [];
+            $scope.showSavedSearch = false;
             $scope.startNode = {
                 icon: '',
                 id: 0,
@@ -47,25 +62,30 @@ angular
 
         // Event Handler Methods /////////////////////////////////////////////////////
 
+        /**
+         * @method addPropertyToEditList
+         * @returns {void}
+         * @description Adds the property selected to the edit list and creates 
+         * a matching editor for each search result.
+         */
         $scope.addPropertyToEditList = function() {
             var property = $scope.propertyToAdd;
             $scope.propertiesToEdit.push(property);
             console.info('propertiesToEdit', $scope.propertiesToEdit);
+            // Get the property editor for the property.
             $scope.getPropertyEditor(property.dataTypeId).then(function(editor) {
+                // Loop through all results.
                 for (var i = 0; i < $scope.results.length; i++) {
+                    // Add the editor to a list of editors for the result.
+                    console.info('editor', editor);
                     var thisEditor = JSON.parse(JSON.stringify(editor));
-                    var result = $scope.results[i];
-                    var value = result[property.alias];
-                    thisEditor.value = value;
-                    var editorsForThisResult = [];
-                    if ($scope.propertyEditors.length > i) {
-                        editorsForThisResult = $scope.propertyEditors[i];
-                    }
-                    editorsForThisResult.push(thisEditor);
-                    $scope.propertyEditors[i] = editorsForThisResult;
-                    $scope.isFieldDirty(i);
+                    $scope.addEditorForPropertyToResultItem(property.alias, thisEditor, i);
                 }
             });
+            // Start a watcher to see when the editor updates.
+            $scope.startWatchingEditors();
+            // Reset propertyToAdd to '-select property-' for select element.
+            $scope.propertyToAdd = $scope.getFilteredAvailableProperties()[0];
             $scope.isSelectingProperty = false;
         };  
 
@@ -83,16 +103,6 @@ angular
                 rootId: $scope.startNode.id
             };
             $scope.openPage('GET', csvUrl, data);
-        };
-
-        $scope.getResultIndex = function(result) {
-            var index = 0;
-            for (var i = 0; i < $scope.results.length; i++) {
-                if (result.Id == $scope.results[i].Id) {
-                    index = i;
-                }
-            }
-            return index;
         };
 
         /**
@@ -124,7 +134,48 @@ angular
                 });
             }
         };
+ 
+        $scope.onConfigDialogConfirmation = function(data) {
+            console.info('onConfigDialogConfirmation', data);
+            if (data) {
+                $scope.config = JSON.parse(JSON.stringify(data));
+                if ($scope.config.hideNav) {
+                    $scope.hideNav();
+                } else {
+                    $scope.showNav();
+                }
+            }
+        };
 
+        $scope.onDeleteSavedSearchDialogConfirmation = function(data) {
+            console.info('data', data);
+            bulkEditApi.deleteSavedSearchByGuid(data.guid).then(function(result) {
+                $scope.getSavedSearches();
+            });
+        };  
+
+        $scope.openConfigDialog = function() {
+            dialogService.open({
+                template: "/App_Plugins/UmbracoBulkEdit/views/configDialog.html",
+                dialogData: JSON.parse(JSON.stringify($scope.config)),
+                callback: $scope.onConfigDialogConfirmation
+            });           
+        };
+
+        $scope.openDeleteSavedSearchDialog = function(guid) {
+            dialogService.open({
+                template: "/App_Plugins/UmbracoBulkEdit/views/deleteSavedSearchDialog.html",
+                dialogData: {guid: guid},
+                callback: $scope.onDeleteSavedSearchDialogConfirmation
+            }); 
+        };
+
+        /**
+         * @method openPropertySelection
+         * @returns {void}
+         * @description Toggles open the select element that contains the list of 
+         * properties to potentially edit.
+         */
         $scope.openPropertySelection = function() {
             $scope.isSelectingProperty = true;
         };
@@ -143,10 +194,37 @@ angular
             dialogService.closeAll();
         };
 
+        /**
+         * @method runSavedSearch
+         * @param {JSON} search
+         * @returns {void}
+         * @description Run a previously saved search by setting node id and 
+         * alias then triggering $scope.search().
+         */
+        $scope.runSavedSearch = function(search) {
+            var options = JSON.parse(search.Options);
+            contentResource.getById(options.rootId).then(function(data) {
+                $scope.startNode = data;
+                for (var i = 0; i < $scope.doctypes.length; i++) {
+                    var doctype = $scope.doctypes[i];
+                    if (doctype.alias == options.alias) {
+                        $scope.doctype = $scope.doctypes[i];
+                    }
+                }
+                $scope.search();
+            });
+
+        };
+
+        /**
+         * @method saveAll
+         * @returns {void}
+         * @description Saves all nodes on the page via API.
+         */
         $scope.saveAll = function() {
             notificationsService.info('Saving...', 'saving all nodes.');
             var nodesToSave = [];
-            var perPage = $scope.itemsPerPage;
+            var perPage = $scope.config.itemsPerPage;
             for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
                 if ($scope.results[i]) {
                     var node = $scope.results[i];
@@ -158,21 +236,26 @@ angular
                     for (var j = 0; j < $scope.propertiesToEdit.length; j++) {
                         var propToEdit = $scope.propertiesToEdit[j];
                         var editor = editors[j];
-                        console.info(editor);
                         nodeToSave.properties.push({
                             alias: propToEdit.alias,
                             value: editor.value
                         });
+                        $scope.results[i][propToEdit.alias] = editor.value;
                     }
                     nodesToSave.push(nodeToSave);               
                 }
             }
-            bulkEditApi.SaveNodes(nodesToSave).then(function(result){
-                console.info(result);
+            bulkEditApi.saveNodes(nodesToSave).then(function(result) {
                 notificationsService.success('Saved!', 'All nodes were successfully saved.');
             });
         };
 
+        /**
+         * @method saveNode
+         * @param {number} index - The index of the result to save.
+         * @returns {void}
+         * @description Saves the result node at the indicated index.
+         */
         $scope.saveNode = function(index) {
             $scope.isSaving[index] = true;
             var node = $scope.results[index];
@@ -181,10 +264,14 @@ angular
             for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
                 var propToEdit = $scope.propertiesToEdit[i];
                 var editor = editors[i];
-                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result){
-                    console.info(result);
+                var savedCount = 0;
+                bulkEditApi.savePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result) {
                     $scope.isSaving[index] = false;
-                    notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                    $scope.overwritePropValue(propToEdit.alias, editor.value, index);
+                    savedCount += 1;
+                    if (savedCount >= $scope.propertiesToEdit.length) {
+                        notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                    }
                 });
             }
         };
@@ -196,11 +283,43 @@ angular
          * matching content.
          */
         $scope.search = function() {
-            $scope.getContent($scope.startNode, $scope.doctype.alias);
-            $scope.hideNav();
+            $scope.getContent($scope.startNode, $scope.doctype.alias).then(function(results) {
+                $scope.showSavedSearch = false;
+                $scope.saveSearchIfUnique($scope.startNode, $scope.doctype);
+            });
+            if ($scope.config.hideNav) {
+                $scope.currentPage = 0;
+                $scope.hideNav();
+            }
         };
 
+        $scope.toggleSavedSearchPanel = function() {
+            $scope.showSavedSearch = !$scope.showSavedSearch;
+        }
+
         // Helper Methods ////////////////////////////////////////////////////////////
+
+        /**
+         * @method addEditorForPropertyToResultItem
+         * @param {string} propertyAlias - the alias of the property the editor is for.
+         * @param {JSON} edtior - the config data for the editor
+         * @param {number} index - the index of the item to add.
+         * @returns {void}
+         * @description Assigns the property editor that matches the property alias 
+         * onto a result item, assigning the applicable value to the editor from 
+         * the result.
+         */
+        $scope.addEditorForPropertyToResultItem = function(propertyAlias, editor, index) {
+            var result = $scope.results[index];
+            var value = result[propertyAlias];
+            editor.value = value;
+            var editors = [];
+            if ($scope.propertyEditors.length > index) {
+                editors = $scope.propertyEditors[index];
+            }
+            editors.push(editor);
+            $scope.propertyEditors[index] = editors;
+        };
 
         /**
          * @method buildDocTypeOptions
@@ -257,6 +376,35 @@ angular
         };
 
         /**
+         * @method checkIfResultRowsAreDirty
+         * @returns {boolean[]}
+         * @description Iterates through all result nodes, compares the state of 
+         * their editors with their original values for edited properties, and 
+         * determines if that row is "dirty" or not.
+         */
+        $scope.checkIfResultRowsAreDirty = function() {
+            var allEditors = JSON.parse(JSON.stringify($scope.propertyEditors));
+            var propsToEdit = JSON.parse(JSON.stringify($scope.propertiesToEdit));
+            var results = JSON.parse(JSON.stringify($scope.results));
+            for (var i = 0; i < results.length; i++) {
+                var isDirty = false;
+                var node = results[i];
+                var editors = allEditors[i];
+                if (editors && editors.length > 0) {
+                    for (var j = 0; j < editors.length; j++) {
+                        var propToEdit = propsToEdit[j];
+                        var editor = editors[j];
+                        if (node[propToEdit.alias] !== editor.value) {
+                            isDirty = true;
+                        }
+                    }
+                }
+                $scope.isRowDirty[i] = isDirty;
+            }
+            return $scope.isRowDirty;
+        };
+
+        /**
          * @method getContent
          * @param {Object} node
          * @param {string} doctypeAlias
@@ -265,23 +413,30 @@ angular
          * that is beneath the node.
          */
         $scope.getContent = function(node, doctypeAlias) {
-            bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
+            return bulkEditApi.getMatchingContent(node.id, doctypeAlias).then(function(response) {
                 if (response && response.data) {
                     $scope.results = response.data;
                     $scope.propertiesToEdit = [];
                     $scope.propertyEditors = [];
                     $scope.resultProperties = $scope.properties;
                     $scope.propertyToAdd = $scope.resultProperties[0];
+                    return $scope.results;
                     console.info('content results', $scope.results);
                 }
             },function(error) {
                 console.error('Error with getContent() in bulkEdit.dashboard.controller.js: ', error);
-            })
+            });
         };
 
+        /**
+         * @method getCurrentPage
+         * @returns {Object[]}
+         * @description Returns an array of results for displaying on the 
+         * current page. 
+         */
         $scope.getCurrentPage = function() {
             var results = [];
-            var perPage = $scope.itemsPerPage;
+            var perPage = $scope.config.itemsPerPage;
             if ($scope.results.length > $scope.currentPage * perPage) {
                 for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
                     if ($scope.results[i]) {
@@ -292,26 +447,111 @@ angular
             return results;
         };
 
-        $scope.getEditCellClass = function() {
+        /**
+         * @method getEditCellClass
+         * @returns {string}
+         * @description Returns a string for the cell class with the needed spans.
+         */
+        $scope.getEditCellClass = function(defaultClass) {
             var classes = "cell ";
+            if (defaultClass && (typeof defaultClass) == "string") {
+                classes += defaultClass + " ";
+            }
             var length = $scope.propertiesToEdit.length;
             if (length < 2) {
-                classes += "span8"
+                if ($scope.config.hideIdCol) {
+                    classes += "span9"
+                } else {
+                    classes += "span8";
+                }
             } else {
-                classes += "span4";
+                classes += "span4-5";
             }
             return classes;
         };
 
+        /**
+         * @method getFilteredAvailableProperties
+         * @returns {Array}
+         * @description Returns a filtered selection of resultProperties that aren't 
+         * already selected.
+         */
+        $scope.getFilteredAvailableProperties = function() {
+            var available = [];
+            var props = $scope.resultProperties;
+            var selected = $scope.propertiesToEdit;
+            for (var i = 0; i < props.length; i++) {
+                var prop = props[i];
+                var propAlreadySelected = false;
+                for (var j = 0; j < selected.length; j++) {
+                    if (selected[j].id == prop.id) {
+                        propAlreadySelected = true;
+                    }
+                }
+                if (!propAlreadySelected) {
+                    available.push(prop);
+                }
+            }
+            return available;
+        };
+
+        $scope.getJsonProp = function(stringifiedJSON, paramName) {
+            try {
+                var jsonAsObject = JSON.parse(stringifiedJSON);
+                return jsonAsObject[paramName];
+            } catch(err) {
+                return "";
+            }
+        };
+
+        /**
+         * @method getPages
+         * @returns {number[]}
+         * @description returns an array of page numbers.
+         */
         $scope.getPages = function() {
             var pages = [];
-            var maxPage = Math.ceil($scope.results.length / $scope.itemsPerPage);
-            for (var i = 0; i < maxPage; i++) {
+            var current = $scope.currentPage;
+            var shouldAddFirst = false;
+            var shouldAddLast = false;
+            var maxPage = Math.ceil($scope.results.length / $scope.config.itemsPerPage);
+            var max = 0;
+            var min = 0;
+            if (current < 6 && maxPage > 10) {
+                max = 9;
+                shouldAddLast = true;
+            } else if (maxPage < 11) {
+                max = maxPage - 1;
+            } else {
+                shouldAddFirst = true;
+                if (maxPage - current > 5) {
+                    shouldAddLast = true;
+                    max = current + 5;
+                    min = current - 4;
+                } else {
+                    min = maxPage - 10;
+                    max = maxPage - 1;
+                }
+            }
+            if (shouldAddFirst) {
+                pages.push(1);
+            }
+            for (var i = min; i <= max; i++) {
                 pages.push(i + 1);
+            }
+            if (shouldAddLast) {
+                pages.push(maxPage);
             }
             return pages;
         };
 
+        /**
+         * @method getPropertyEditor
+         * @param {number} id
+         * @returns {promise} - JSON
+         * @description Returns the editor config object for the datatype with 
+         * the matching datatype after fetching it from the API.
+         */
         $scope.getPropertyEditor = function(id) {
             return bulkEditApi.getDataTypeById(id).then(function(result) {
                 if (result && result !== null) {
@@ -327,6 +567,30 @@ angular
                 } else {
                     return false;
                 }
+            });
+        };
+
+        /**
+         * @method getResultIndex
+         * @param {Object} result
+         * @returns {number}
+         * @description Looks at the node result passed to it and determines its 
+         * index in the array of $scope.results. Returns that number.
+         */
+        $scope.getResultIndex = function(result) {
+            var index = 0;
+            for (var i = 0; i < $scope.results.length; i++) {
+                if (result.Id == $scope.results[i].Id) {
+                    index = i;
+                }
+            }
+            return index;
+        };
+
+        $scope.getSavedSearches = function() {
+            return bulkEditApi.getAllSavedSearches().then(function(response) {
+                $scope.savedSearches = response.data.results;
+                return response.data.results;
             });
         };
 
@@ -361,21 +625,6 @@ angular
             window.addEventListener('resize', $scope.resetWrapperOffsetOnResize);
         };
 
-        $scope.isFieldDirty = function(index) {
-            var isDirty = false;
-            var result = $scope.results[index];
-            var editors = $scope.propertyEditors[index];
-            for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
-                var property = $scope.propertiesToEdit[i];
-                var originalValue = result[property.alias];
-                if (editors[i].value != originalValue) {
-                    isDirty = true;
-                }
-            }
-            console.info(index + ': ' + isDirty);
-            return isDirty;
-        };      
-
         /**
          * @method openPage
          * @param {string} verb - must be 'GET or 'POST'
@@ -402,6 +651,21 @@ angular
         };
 
         /**
+         * @method overwritePropValue
+         * @param {string} alias
+         * @param {any} value
+         * @param {number} index
+         * @returns {JSON}
+         * @description overwrites the property on the client-side version of the 
+         * result's property at the given index to sync it with the prop editor 
+         * value.
+         */
+        $scope.overwritePropValue = function(alias, value, index) {
+            $scope.results[index][alias] = value;
+            return $scope.results[index];
+        }
+
+        /**
          * @method resetWrapperOffsetOnResize
          * @returns {void}
          * @description Removes the style we applied to the #contentwrapper div.
@@ -412,6 +676,42 @@ angular
             var cw = document.querySelector('#contentwrapper');
             cw.setAttribute('style', '');
             window.removeEventListener('resize', $scope.resetWrapperOffsetOnResize);
+        };
+
+        /**
+         * @method saveSearchIfUnique
+         * @param {JSON} startNode
+         * @param {JSON} docType
+         * @returns {promise}
+         * @description If we haven't saved this search before, save a new one.
+         */
+        $scope.saveSearchIfUnique = function(startNode, docType) {
+            var searchName = 'All ' + docType.alias + ' under ' + startNode.name;
+            var isUnique = true;
+            // Loop through every existing saved search to make sure we're not 
+            // requesting to save a duplicate.
+            for (var i = 0; i < $scope.savedSearches.length; i++) {
+                var search = $scope.savedSearches[i];
+                var options = JSON.parse(search.Options);
+                if (options.rootId == startNode.id && options.alias == docType.alias) {
+                    isUnique = false;
+                }
+            }
+            // If it's unique, go ahead and post the search then update our 
+            // saved searches from the server.
+            if (isUnique) {
+                return bulkEditApi.postSavedSearch(searchName, startNode.id, docType.alias).then(function(response) {
+                    return $scope.getSavedSearches();
+                });
+            } else {
+                return $scope.savedSearches;
+            }
+        }
+
+        $scope.showNav = function() {
+            // hide the tree.
+            appState.setGlobalState("showNavigation", true);
+            $scope.resetWrapperOffsetOnResize();
         };
 
         /**
@@ -429,7 +729,25 @@ angular
                 return (textA < textB) ? -1 : (textA > textB) ? 1 : 0;
             });
             return array;    
-        };        
+        };
+
+        /**
+         * @method startWatchingEditors
+         * @returns {void}
+         * @description Starts $scope.watch on propertyEditors to help the scope 
+         * know when those are being touched.
+         */
+        $scope.startWatchingEditors = function() {
+            if (!$scope.haveSetEditorWatcher) {
+                $scope.$watch('propertyEditors', function () {
+                    $scope.checkIfResultRowsAreDirty();
+                }, true);
+                $scope.$watch('results', function () {
+                    $scope.checkIfResultRowsAreDirty();
+                }, true);                                        
+                $scope.haveSetEditorWatcher = true;
+            }
+        };
 
         // Call $scope.init() ////////////////////////////////////////////////////////
 

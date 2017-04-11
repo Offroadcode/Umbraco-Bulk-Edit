@@ -1,51 +1,105 @@
 <div class="row bulk-edit" ng-controller="bulkEdit.dashboard.controller">
     <div class="span12">
-        <h3>Bulk Edit</h3>
-        <div class="head row">
-            <div class="span4">
-                <div>
+        <div class="row">
+            <h3 class="span11">Bulk Edit</h3>
+            <div class="span1">
+                <button class="btn-none btn-settings pull-right" ng-click="openConfigDialog()" type="button">
+                    <i class="icon icon-settings"></i>
+                </button>
+            </div>
+        </div>
+        <!-- Head Section -->
+        <div class="section head row">
+            <div class="span8">
+                <p>
+                    <!-- Node Selection -->
                     <span ng-show="startNode.id !== 0">
-                        <b>Start Content:</b> <a href="/umbraco/#/content/content/edit/{{startNode.id}}" ><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</a>
-                    </span> 
-                    <span>
-                        <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
-                            <span ng-show="startNode.id == 0">Choose Start Content</span>
-                            <span ng-show="startNode.id !== 0">Change</span>
-                        </button>
+                        Find nodes under&nbsp;
                     </span>
-                    <br><br>
-                </div>
-                <div class="content-type-selector">
-                    <b>Content Type to edit:</b> 
-                    <select 
-                        ng-model="doctype" 
-                        ng-change="loadDocType()" 
-                        ng-options="x as x.name for x in doctypes">
-                    </select>
-                </div>
+                    <!-- Choose Node Button --> 
+                    <button ng-click="openStartNodePicker()" type="button" class="btn btn-inline">
+                        <span ng-show="startNode.id == 0">Choose Start Node</span>
+                        <span ng-show="startNode.id !== 0"><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</span>
+                    </button>
+                    <span class="content-type-selector" ng-show="startNode.id !== 0">
+                        &nbsp;with the&nbsp;
+                        <select
+                            class="no-margin" 
+                            ng-model="doctype" 
+                            ng-change="loadDocType()" 
+                            ng-options="x as x.name for x in doctypes">
+                        </select>
+                        &nbsp;docType.
+                    </span>
+                </p>
                 <button 
                     type="button" 
                     ng-click="search()" 
                     class="btn umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Search</button>
-                <br/><br/>
             </div>
-            <div class="span6">
+            <div class="span2">
                 <!-- Something will eventually go here -->
             </div>
+<<<<<<< HEAD
             <div class="span2">
                 <button 
                     type="button" 
                     ng-click="exportAsCsv()"
                     class="btn umb-button__button"
                     ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
+=======
+            <!-- Export as CSV -->
+            <div class="span2 sidebar-buttons">
+                <div class="wrapper">
+                    <button 
+                        type="button" 
+                        ng-click="exportAsCsv()"
+                        class="btn pull-right umb-button__button"
+                        ng-disabled="doctype.id == 0 || startNode.id == 0">Export as CSV</button>
+                </div>
+                <div class="wrapper" ng-show="savedSearches.length > 0">
+                    <button type="button" class="btn pull-right umb-button__button" ng-click="toggleSavedSearchPanel()">
+                        <span ng-show="!showSavedSearch">Load A Saved Search</span>
+                        <span ng-show="showSavedSearch">Hide Saved Searches</span>
+                    </button>
+                </div>
+>>>>>>> origin/master
             </div>
         </div>
-        <div ng-show="results.length > 0">
-            <h4>Results (Found {{results.length}} Documents)</h4>
+        <!-- Results Section -->
+        <div class="section" ng-show="results.length > 0 && !showSavedSearch">
+            <!-- Results Headline -->
+            <div class="row">
+                <h4 class="span9">Results (Found {{results.length}} Documents)</h4>
+                <div class="span3">
+                    <!-- Add Field Button -->
+                    <button type="button" 
+                        ng-click="openPropertySelection()"
+                        class="btn umb-button__button pull-right"
+                        ng-show="!isSelectingProperty">
+                        Add Field
+                    </button>
+                    <!-- Propery Editor Select Dropdown -->
+                    <div ng-show="isSelectingProperty" class="pull-right">
+                        <select
+                            class="no-margin"
+                            ng-model="propertyToAdd"
+                            ng-options="x as x.label for x in getFilteredAvailableProperties()"></select>
+                        <button
+                            ng-click="addPropertyToEditList()"
+                            class="btn umb-button__button"
+                            ng-disabled="propertyToAdd.id == 0">Add</button>
+                    </div> 
+                </div>
+            </div>
+            <!-- Table of Results -->
             <div class="bulk-edit-table">
+                <!-- Table Header -->
                 <div class="head row">
+                    <!-- Node Name -->
                     <div class="cell span2">Content Name</div>
+<<<<<<< HEAD
                     <div class="cell span1">Id</div>
                     <div ng-class="getEditCellClass()" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
                     <div class="cell span8" ng-show="propertiesToEdit.length == 0"></div>
@@ -67,8 +121,21 @@
                             </div> 
                         </div>                       
                     </div>
+=======
+                    <!-- Node ID -->
+                    <div ng-show="!config.hideIdCol" class="cell span1 text-center">Id</div>
+                    <!-- Property Editors -->
+                    <div ng-class="getEditCellClass()" ng-repeat="prop in propertiesToEdit">{{prop.label}}</div>
+                    <!-- Spacer if no Property Editors -->
+                    <div class="cell span8" ng-show="propertiesToEdit.length == 0 && !config.hideIdCol"></div>
+                    <div class="cell span9" ng-show="propertiesToEdit.length == 0 && config.hideIdCol"></div>
+                    <!-- Spacer -->
+                    <div class="cell span1 no-border"></div>
+>>>>>>> origin/master
                 </div>
+                <!-- Table Body -->
                 <div class="body">
+<<<<<<< HEAD
                     <div class="row" ng-repeat="result in getCurrentPage()">
                         <div class="cell span2">
                             <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
@@ -98,6 +165,94 @@
                                     ng-show="isSaving[getResultIndex(result)]">Saving...</button>
                             </div>
                         </div>
+=======
+                    <!-- Table Row / Repeats Per Item in Results -->
+                    <div class="row" ng-repeat="result in getCurrentPage()">
+                        <!-- Node Name -->
+                        <div class="cell span2">
+                            <a href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}}</a>
+                        </div>
+                        <!-- Node ID -->
+                        <div ng-show="!config.hideIdCol" class="cell span1 text-center">{{result.Id}}</div>
+                        <!-- Property Editors -->
+                        <div ng-class="getEditCellClass()" ng-repeat="editor in propertyEditors[getResultIndex(result)]">
+                            <umb-editor model="editor"></umb-editor>
+                        </div>
+                        <!-- Spacer if No Property Editors -->
+                        <div class="cell span8" ng-show="propertiesToEdit.length == 0 && !config.hideIdCol"></div>
+                        <div class="cell span9" ng-show="propertiesToEdit.length == 0 && config.hideIdCol"></div>
+                        <!-- Save Button -->
+                        <div class="cell span1 text-center">
+                            <div ng-show="propertiesToEdit.length > 0">
+                                <button 
+                                    type="button" 
+                                    class="btn umb-button__button"
+                                    ng-class="{'btn-success': isRowDirty[getResultIndex(result)]}"
+                                    ng-disabled="!isRowDirty[getResultIndex(result)] || isSaving[getResultIndex(result)]"
+                                    ng-click="saveNode(getResultIndex(result))"
+                                    ng-show="!isSaving[getResultIndex(result)]">
+                                        <span ng-show="!isSaving[getResultIndex(result)]">Save</span>
+                                        <span ng-show="isSaving[getResultIndex(result)]">Saving...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <!-- end Table of Results -->
+            <!-- Page Navigation and Save Page Button -->
+            <div class="row">
+                <div class="span10">
+                    <div ng-show="getPages().length > 1">
+                        <p>Pages: <span ng-repeat="page in getPages()">
+                            <button 
+                                class="btn umb-button__button" 
+                                type="button" 
+                                ng-class="{'btn-success': page==(currentPage + 1)}"
+                                ng-click="gotoPage(page)">{{page}}</button> 
+                        </span></p>
+                    </div>
+                </div>
+                <div class="span2">
+                    <button type="button" class="btn pull-right umb-button__button btn-success" ng-click="saveAll()">Save All On Page</button>
+                </div>
+            </div>
+            <div><br/></div>
+        </div>
+        <!-- Saved Searches -->
+        <div class="section" ng-show="showSavedSearch">
+            <!-- Headline -->
+            <h4>Saved Previous Searches</h4>
+            <div class="bulk-edit-table">
+                <!-- Table Header -->
+                <div class="head row">
+                    <div class="cell span1"></div>
+                    <!-- Search Name -->
+                    <div class="cell span4">Search Name</div>
+                    <!-- Root ID -->
+                    <div class="cell span1 text-center">Root Node ID</div>
+                    <!-- DocType -->
+                    <div class="cell span2 text-center">DocType</div>
+                    <!-- Spacer -->
+                    <div class="cell span4"></div>
+                </div>
+                <!-- Table Body -->
+                <div class="body">
+                    <div class="row" ng-repeat="search in savedSearches">
+                        <!-- Search Button -->
+                        <div class="cell span1 text-center">
+                            <button class="btn umb-button__button" type="button">Search</button>
+                        </div>
+                        <!-- Search Name -->
+                        <div class="cell span4">{{search.Name}}</div>
+                        <!-- Root ID -->
+                        <div class="cell span1 text-center">{{getJsonProp(search.Options, 'rootId')}}</div>
+                        <!-- DocType -->
+                        <div class="cell span2 text-center">{{getJsonProp(search.Options, 'alias')}}</div>
+                        <!-- Spacer -->
+                        <div class="cell span4"></div>                        
+>>>>>>> origin/master
                     </div>
                 </div>
             </div>

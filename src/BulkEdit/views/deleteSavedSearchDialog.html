@@ -1,0 +1,20 @@
+<div ng-controller="config.dialog.controller">
+    <form name="dialogForm" ng-submit="submit(model)">
+        <umb-panel>
+            <div class="umb-panel-body no-header umb-scrollable with-footer" >
+                <umb-pane>
+                    <h3>Are You Sure?</h3>
+                    <p>Do you really wish to delete this saved search?</p>
+                </umb-pane>
+            </div>
+            <div class="umb-panel-footer">
+                <div class="btn-toolbar umb-btn-toolbar pull-right">
+                    <a class="btn btn-link" ng-click="close()">
+                        <localize key="cancel" />
+                    </a>
+                    <button type="submit" class="btn btn-primary">Confirm</button>
+                </div>
+            </div>
+        </umb-panel>
+    </form>
+</div>
