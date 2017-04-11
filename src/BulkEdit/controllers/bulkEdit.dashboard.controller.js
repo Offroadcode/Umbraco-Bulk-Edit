@@ -4,7 +4,6 @@ angular
         appState, 
         bulkEditApi,
         contentResource, 
-        contentTypeResource, 
         dataTypeResource, 
         dialogService, 
         navigationService,
@@ -18,12 +17,8 @@ angular
         $scope.init = function() {
             $scope.setVariables();
             $scope.buildDocTypeOptions();
-<<<<<<< HEAD
-            console.info('init'); 
-=======
             $scope.getSavedSearches();
             console.info('init');
->>>>>>> origin/master
         };
 
         /**
@@ -38,7 +33,8 @@ angular
                 itemsPerPage: 10
             };
             $scope.currentPage = 0;
-            $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
+            $scope.allDocTypes = [];
+            $scope.doctypes = [{Name: '-Select Doctype-', Alias: '', Id: 0}];
             $scope.doctype = $scope.doctypes[0];
             $scope.haveSetEditorWatcher = false;
             $scope.isSelectingProperty = false;
@@ -99,7 +95,7 @@ angular
             var csvUrl = "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent";
             var data = {
                 format: "Csv",
-                contentTypeAlias: $scope.doctype.alias,
+                contentTypeAlias: $scope.doctype.Alias,
                 rootId: $scope.startNode.id
             };
             $scope.openPage('GET', csvUrl, data);
@@ -125,8 +121,8 @@ angular
          */
         $scope.loadDocType = function() {
             console.info('doctype', $scope.doctype);
-            if ($scope.doctype.id !== 0) {
-                contentTypeResource.getById($scope.doctype.id).then(function(response) {
+            if ($scope.doctype.Id !== 0) {
+                $scope.getDocTypeById($scope.doctype.Id, function(response){
                     $scope.properties = $scope.buildPropertiesForDoctype(response);
                     $scope.properties = $scope.sortArrayAlphaByProp($scope.properties, 'label');
                     $scope.properties.unshift({label: '-Select Property-',id: 0});
@@ -207,7 +203,7 @@ angular
                 $scope.startNode = data;
                 for (var i = 0; i < $scope.doctypes.length; i++) {
                     var doctype = $scope.doctypes[i];
-                    if (doctype.alias == options.alias) {
+                    if (doctype.Alias == options.alias) {
                         $scope.doctype = $scope.doctypes[i];
                     }
                 }
@@ -283,7 +279,7 @@ angular
          * matching content.
          */
         $scope.search = function() {
-            $scope.getContent($scope.startNode, $scope.doctype.alias).then(function(results) {
+            $scope.getContent($scope.startNode, $scope.doctype.Alias).then(function(results) {
                 $scope.showSavedSearch = false;
                 $scope.saveSearchIfUnique($scope.startNode, $scope.doctype);
             });
@@ -331,19 +327,23 @@ angular
          * NOTE: Currently not being used as we've hard-wired selectable doctypes. --Kyle
          */
         $scope.buildDocTypeOptions = function() {
-            contentTypeResource.getAll().then(function(types) {
+            bulkEditApi.getAllContentTypes().then(function(response) {
+                var types = response.data.results;
                 if (types && types.length > 0) {
+                    console.info('types', types);
+                    $scope.allDocTypes = JSON.parse(JSON.stringify(types));
                     $scope.doctypes = [];
                     for (var i = 0; i < types.length; i++) {
                         var type = types[i];
                         $scope.doctypes.push(types[i]);
                     }
                     // Sort types alphabetically.
-                    $scope.doctypes = $scope.sortArrayAlphaByProp($scope.doctypes, 'name');
+                    console.info('doctypes', $scope.doctypes);
+                    $scope.doctypes = $scope.sortArrayAlphaByProp($scope.doctypes, 'Name');
                     $scope.doctypes.unshift({
-                        name: '-Select Doctype-',
-                        alias: '',
-                        id: 0
+                        Name: '-Select Doctype-',
+                        Alias: '',
+                        Id: 0
                     });
                     $scope.doctype = $scope.doctypes[0];
                     console.info('doctypes', $scope.doctypes);
@@ -445,6 +445,18 @@ angular
                 }
             }
             return results;
+        };
+
+        $scope.getDocTypeById = function(id, callback) {
+            var doctype = false;
+            for (var i = 0; i < $scope.allDocTypes.length; i++) {
+                if (id == $scope.allDocTypes[i].Id) {
+                    doctype = JSON.parse(JSON.stringify($scope.allDocTypes[i]));
+                }
+            }
+            if (callback) {
+                callback(doctype);
+            }
         };
 
         /**
@@ -686,21 +698,21 @@ angular
          * @description If we haven't saved this search before, save a new one.
          */
         $scope.saveSearchIfUnique = function(startNode, docType) {
-            var searchName = 'All ' + docType.alias + ' under ' + startNode.name;
+            var searchName = 'All ' + docType.Alias + ' under ' + startNode.name;
             var isUnique = true;
             // Loop through every existing saved search to make sure we're not 
             // requesting to save a duplicate.
             for (var i = 0; i < $scope.savedSearches.length; i++) {
                 var search = $scope.savedSearches[i];
                 var options = JSON.parse(search.Options);
-                if (options.rootId == startNode.id && options.alias == docType.alias) {
+                if (options.rootId == startNode.id && options.alias == docType.Alias) {
                     isUnique = false;
                 }
             }
             // If it's unique, go ahead and post the search then update our 
             // saved searches from the server.
             if (isUnique) {
-                return bulkEditApi.postSavedSearch(searchName, startNode.id, docType.alias).then(function(response) {
+                return bulkEditApi.postSavedSearch(searchName, startNode.id, docType.Alias).then(function(response) {
                     return $scope.getSavedSearches();
                 });
             } else {
