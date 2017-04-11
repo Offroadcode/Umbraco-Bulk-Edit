@@ -27,7 +27,7 @@
                             class="no-margin" 
                             ng-model="doctype" 
                             ng-change="loadDocType()" 
-                            ng-options="x as x.name for x in doctypes">
+                            ng-options="x as x.Name for x in doctypes">
                         </select>
                         &nbsp;docType.
                     </span>
@@ -77,7 +77,7 @@
                         <select
                             class="no-margin"
                             ng-model="propertyToAdd"
-                            ng-options="x as x.label for x in getFilteredAvailableProperties()"></select>
+                            ng-options="x as x.Name for x in getFilteredAvailableProperties()"></select>
                         <button
                             ng-click="addPropertyToEditList()"
                             class="btn umb-button__button"
@@ -177,7 +177,7 @@
                 </div>
                 <!-- Table Body -->
                 <div class="body">
-                    <div class="row" ng-repeat="search in savedSearches">
+                    <div class="row" ng-repeat="search in getCurrentSavedSearchPage()">
                         <!-- Search Button -->
                         <div class="cell span1 text-center">
                             <button class="btn umb-button__button" type="button" ng-click="runSavedSearch(search)">Search</button>
@@ -198,6 +198,21 @@
                     </div>
                 </div>
             </div>
+            <!-- Page Navigation and Save Page Button -->
+            <div class="row">
+                <div class="span10">
+                    <div ng-show="getSavedSearchPages().length > 1">
+                        <p>Pages: <span ng-repeat="page in getSavedSearchPages()">
+                            <button 
+                                class="btn umb-button__button" 
+                                type="button" 
+                                ng-class="{'btn-success': page==(currentSavedSearchPage + 1)}"
+                                ng-click="gotoSavedSearchPage(page)">{{page}}</button> 
+                        </span></p>
+                    </div>
+                </div>
+            </div>
+            <div><br/></div>            
         </div>
     </div>
 </div>
