@@ -33,6 +33,7 @@ angular
                 itemsPerPage: 10
             };
             $scope.currentPage = 0;
+            $scope.currentSavedSearchPage = 0;
             $scope.allDocTypes = [];
             $scope.doctypes = [{Name: '-Select Doctype-', Alias: '', Id: 0}];
             $scope.doctype = $scope.doctypes[0];
@@ -135,6 +136,9 @@ angular
             console.info('onConfigDialogConfirmation', data);
             if (data) {
                 $scope.config = JSON.parse(JSON.stringify(data));
+                // reset current page to avoid issues with current page being too high.
+                $scope.currentPage = 0;
+                $scope.currentSavedSearchPage = 0;                
                 if ($scope.config.hideNav) {
                     $scope.hideNav();
                 } else {
@@ -447,6 +451,25 @@ angular
             return results;
         };
 
+        /**
+         * @method getCurrentSavedSearchPage
+         * @returns {Object[]}
+         * @description Returns an array of saved searches for displaying on the 
+         * current page. 
+         */
+        $scope.getCurrentSavedSearchPage = function() {
+            var searches = [];
+            var perPage = $scope.config.itemsPerPage;
+            if ($scope.savedSearches.length > $scope.currentSavedSearchPage * perPage) {
+                for (var i = ($scope.currentSavedSearchPage * perPage); i < ($scope.currentSavedSearchPage + 1) * perPage; i++) {
+                    if ($scope.savedSearches[i]) {
+                        searches.push($scope.savedSearches[i]);
+                    }
+                }
+            }
+            return searches;
+        };        
+
         $scope.getDocTypeById = function(id, callback) {
             var doctype = false;
             for (var i = 0; i < $scope.allDocTypes.length; i++) {
@@ -557,6 +580,42 @@ angular
             return pages;
         };
 
+        $scope.getSavedSearchPages = function() {
+            var pages = [];
+            var current = $scope.currentSavedSearchPage;
+            var shouldAddFirst = false;
+            var shouldAddLast = false;
+            var maxPage = Math.ceil($scope.savedSearches.length / $scope.config.itemsPerPage);
+            var max = 0;
+            var min = 0;
+            if (current < 6 && maxPage > 10) {
+                max = 9;
+                shouldAddLast = true;
+            } else if (maxPage < 11) {
+                max = maxPage - 1;
+            } else {
+                shouldAddFirst = true;
+                if (maxPage - current > 5) {
+                    shouldAddLast = true;
+                    max = current + 5;
+                    min = current - 4;
+                } else {
+                    min = maxPage - 10;
+                    max = maxPage - 1;
+                }
+            }
+            if (shouldAddFirst) {
+                pages.push(1);
+            }
+            for (var i = min; i <= max; i++) {
+                pages.push(i + 1);
+            }
+            if (shouldAddLast) {
+                pages.push(maxPage);
+            }
+            return pages;            
+        };
+
         /**
          * @method getPropertyEditor
          * @param {number} id
@@ -610,7 +669,13 @@ angular
             page = Number(page);
             page = page - 1;
             $scope.currentPage = page;
-        }
+        };
+
+        $scope.gotoSavedSearchPage = function(page) {
+            page = Number(page);
+            page = page - 1;
+            $scope.currentSavedSearchPage = page;
+        };
 
         /**
          * @method hideNav
