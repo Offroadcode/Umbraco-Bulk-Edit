@@ -1,16 +1,49 @@
 angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
     return {
         getCsvExport: function(nodeId, doctypeAlias) {
-            return $http.get("/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent?format=Csv&contentTypeAlias=" + doctypeAlias + "&rootId=" + nodeId);         },
+            return $http.get(
+                "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent?format=Csv&contentTypeAlias=" +
+                    doctypeAlias +
+                    "&rootId=" +
+                    nodeId
+            );
+        },
+        getDataTypeById: function(id) {
+            return $http.get("backoffice/ORCCsv/DataType/GetById?id=" + id);
+        },
         getMatchingContent: function(nodeId, doctypeAlias) {
-            return $http.get("/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent?format=json&contentTypeAlias=" + doctypeAlias + "&rootId=" + nodeId); 
+            return $http.get(
+                "/Umbraco/backoffice/ORCCsv/CsvExport/GetPublishedContent?format=json&contentTypeAlias=" +
+                    doctypeAlias +
+                    "&rootId=" +
+                    nodeId
+            );
+        },
+        SavePropertyForNode: function(nodeId, propertyName, propertyValue) {
+            var data = {
+                nodeId: nodeId,
+                propertyName: propertyName,
+                propertyValue: propertyValue
+            };
+            return $http.get('/umbraco/backoffice/ORCCsv/Content/SavePropertyForNode/?nodeId=' + nodeId + '&propertyName=' + propertyName + '&propertyValue=' + propertyValue);
+        },
+        SaveNodes: function(nodes) {
+            var data = nodes;
+            return $http.post('/umbraco/backoffice/ORCCsv/Content/SaveNodes', data);
         }
     };
 });
 
 angular
     .module("umbraco")
-    .controller("bulkEdit.dashboard.controller", function($scope, contentTypeResource, dataTypeResource, dialogService, bulkEditApi) {
+    .controller("bulkEdit.dashboard.controller", function($scope,
+        appState, 
+        bulkEditApi,
+        contentTypeResource, 
+        dataTypeResource, 
+        dialogService, 
+        navigationService,
+        notificationsService) {
         // Initialization Methods ////////////////////////////////////////////////////
 
         /**
@@ -21,7 +54,6 @@ angular
             $scope.setVariables();
             $scope.buildDocTypeOptions();
             console.info('init');
-            console.info('dataTypeResource', dataTypeResource);
         };
 
         /**
@@ -29,9 +61,12 @@ angular
         * @description Sets up the initial variables for the view.
         */
         $scope.setVariables = function() {
+            $scope.currentPage = 0;
             $scope.doctypes = [{name: '-Select Doctype-', alias: '', id: 0}];
             $scope.doctype = $scope.doctypes[0];
             $scope.isSelectingProperty = false;
+            $scope.isSaving = [];
+            $scope.itemsPerPage = 2;
             $scope.properties = [{label: '-Select Property-', id: 0}];
             $scope.resultProperties = [];
             $scope.propertiesToEdit = [];
@@ -49,21 +84,24 @@ angular
         // Event Handler Methods /////////////////////////////////////////////////////
 
         $scope.addPropertyToEditList = function() {
-            $scope.propertiesToEdit.push($scope.propertyToAdd);
+            var property = $scope.propertyToAdd;
+            $scope.propertiesToEdit.push(property);
             console.info('propertiesToEdit', $scope.propertiesToEdit);
-           /*dataTypeResource.getById($scope.propertyToAdd.dataTypeId).then(function(dataType) {
+            $scope.getPropertyEditor(property.dataTypeId).then(function(editor) {
                 for (var i = 0; i < $scope.results.length; i++) {
-                    if ($scope.propertyEditors.length < (i + 1)) {
-                        $scope.propertyEditors.push([]);
-                        $scope.propertyEditors[i].push({
-                            alias: dataType.selectedEditor + '-' + i,
-                            label: '',
-                            view: dataType.
-                        })
+                    var thisEditor = JSON.parse(JSON.stringify(editor));
+                    var result = $scope.results[i];
+                    var value = result[property.alias];
+                    thisEditor.value = value;
+                    var editorsForThisResult = [];
+                    if ($scope.propertyEditors.length > i) {
+                        editorsForThisResult = $scope.propertyEditors[i];
                     }
+                    editorsForThisResult.push(thisEditor);
+                    $scope.propertyEditors[i] = editorsForThisResult;
+                    $scope.isFieldDirty(i);
                 }
-                console.info($scope.propertyToAdd.editor, result);
-            });*/
+            });
             $scope.isSelectingProperty = false;
         };  
 
@@ -81,6 +119,16 @@ angular
                 rootId: $scope.startNode.id
             };
             $scope.openPage('GET', csvUrl, data);
+        };
+
+        $scope.getResultIndex = function(result) {
+            var index = 0;
+            for (var i = 0; i < $scope.results.length; i++) {
+                if (result.Id == $scope.results[i].Id) {
+                    index = i;
+                }
+            }
+            return index;
         };
 
         /**
@@ -131,6 +179,52 @@ angular
             dialogService.closeAll();
         };
 
+        $scope.saveAll = function() {
+            notificationsService.info('Saving...', 'saving all nodes.');
+            var nodesToSave = [];
+            var perPage = $scope.itemsPerPage;
+            for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
+                if ($scope.results[i]) {
+                    var node = $scope.results[i];
+                    var editors = $scope.propertyEditors[i];
+                    var nodeToSave = {
+                        id: node.Id,
+                        properties: []
+                    };
+                    for (var j = 0; j < $scope.propertiesToEdit.length; j++) {
+                        var propToEdit = $scope.propertiesToEdit[j];
+                        var editor = editors[j];
+                        console.info(editor);
+                        nodeToSave.properties.push({
+                            alias: propToEdit.alias,
+                            value: editor.value
+                        });
+                    }
+                    nodesToSave.push(nodeToSave);               
+                }
+            }
+            bulkEditApi.SaveNodes(nodesToSave).then(function(result){
+                console.info(result);
+                notificationsService.success('Saved!', 'All nodes were successfully saved.');
+            });
+        };
+
+        $scope.saveNode = function(index) {
+            $scope.isSaving[index] = true;
+            var node = $scope.results[index];
+            notificationsService.info('Saving...', 'saving node ' + node.Id + '.');
+            var editors = $scope.propertyEditors[index];
+            for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
+                var propToEdit = $scope.propertiesToEdit[i];
+                var editor = editors[i];
+                bulkEditApi.SavePropertyForNode(node.Id, propToEdit.alias, editor.value).then(function(result){
+                    console.info(result);
+                    $scope.isSaving[index] = false;
+                    notificationsService.success('Saved!', 'Node ' + node.Id + ' was successfully saved.');
+                });
+            }
+        };
+
         /**
          * @method search
          * @returns {void}
@@ -139,6 +233,7 @@ angular
          */
         $scope.search = function() {
             $scope.getContent($scope.startNode, $scope.doctype.alias);
+            $scope.hideNav();
         };
 
         // Helper Methods ////////////////////////////////////////////////////////////
@@ -186,7 +281,10 @@ angular
                     var group = doctype.groups[i];
                     if (group && group.properties && group.properties.length > 0) {
                         for (var j = 0; j < group.properties.length; j++) {
-                            properties.push(group.properties[j]);
+                            var property = group.properties[j];
+                            if (property.view.indexOf('grid') < 0) {
+                                properties.push(property);
+                            }
                         }
                     }
                 }
@@ -217,6 +315,103 @@ angular
             })
         };
 
+        $scope.getCurrentPage = function() {
+            var results = [];
+            var perPage = $scope.itemsPerPage;
+            if ($scope.results.length > $scope.currentPage * perPage) {
+                for (var i = ($scope.currentPage * perPage); i < ($scope.currentPage + 1) * perPage; i++) {
+                    if ($scope.results[i]) {
+                        results.push($scope.results[i]);
+                    }
+                }
+            }
+            return results;
+        };
+
+        $scope.getEditCellClass = function() {
+            var classes = "cell ";
+            var length = $scope.propertiesToEdit.length;
+            if (length < 2) {
+                classes += "span8"
+            } else {
+                classes += "span4";
+            }
+            return classes;
+        };
+
+        $scope.getPages = function() {
+            var pages = [];
+            var maxPage = Math.ceil($scope.results.length / $scope.itemsPerPage);
+            for (var i = 0; i < maxPage; i++) {
+                pages.push(i + 1);
+            }
+            return pages;
+        };
+
+        $scope.getPropertyEditor = function(id) {
+            return bulkEditApi.getDataTypeById(id).then(function(result) {
+                if (result && result !== null) {
+                    var data = result.data;
+                    var editor = {
+                        alias: 'propEditor',
+                        config: data.config,
+                        label: 'Placeholder',
+                        view: data.view,
+                        value: null
+                    };
+                    return editor;
+                } else {
+                    return false;
+                }
+            });
+        };
+
+        $scope.gotoPage = function(page) {
+            page = Number(page);
+            page = page - 1;
+            $scope.currentPage = page;
+        }
+
+        /**
+         * @method hideNav
+         * @returns {void}
+         * @description Hides the navigation panel so we have more space to work 
+         * with.
+         */
+        $scope.hideNav = function() {
+            // hide the tree.
+            appState.setGlobalState("showNavigation", false);
+            // get the width of the remaining left column.
+            var lc = document.querySelector('#leftcolumn');
+            var columnWidth = window.getComputedStyle(lc).width;
+            // manually change the 'left' property of the #contentwrapper to 
+            // hide the whitespace created by collapsing the menu.
+            var cw = document.querySelector('#contentwrapper');
+            var styles = cw.getAttribute('style');
+            if (styles == null) {
+                styles = "";
+            }
+            styles += " left: " + columnWidth + ";";
+            cw.setAttribute('style', styles);
+            // listen for resize because it'll auto-pop the sidebar.
+            window.addEventListener('resize', $scope.resetWrapperOffsetOnResize);
+        };
+
+        $scope.isFieldDirty = function(index) {
+            var isDirty = false;
+            var result = $scope.results[index];
+            var editors = $scope.propertyEditors[index];
+            for (var i = 0; i < $scope.propertiesToEdit.length; i++) {
+                var property = $scope.propertiesToEdit[i];
+                var originalValue = result[property.alias];
+                if (editors[i].value != originalValue) {
+                    isDirty = true;
+                }
+            }
+            console.info(index + ': ' + isDirty);
+            return isDirty;
+        };      
+
         /**
          * @method openPage
          * @param {string} verb - must be 'GET or 'POST'
@@ -240,7 +435,20 @@ angular
             form.style.display = 'none';
             document.body.appendChild(form);
             form.submit();
-        };        
+        };
+
+        /**
+         * @method resetWrapperOffsetOnResize
+         * @returns {void}
+         * @description Removes the style we applied to the #contentwrapper div.
+         * We call this when the page is resized because Umbraco re-activates 
+         * the navigation menu, which will overlap.
+         */
+        $scope.resetWrapperOffsetOnResize = function() {
+            var cw = document.querySelector('#contentwrapper');
+            cw.setAttribute('style', '');
+            window.removeEventListener('resize', $scope.resetWrapperOffsetOnResize);
+        };
 
         /**
          * @method sortArrayAlphaByProp

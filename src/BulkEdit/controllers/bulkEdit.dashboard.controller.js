@@ -17,7 +17,7 @@ angular
         $scope.init = function() {
             $scope.setVariables();
             $scope.buildDocTypeOptions();
-            console.info('init');
+            console.info('init'); 
         };
 
         /**
