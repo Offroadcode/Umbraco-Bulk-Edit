@@ -3,6 +3,9 @@ angular.module("umbraco.resources").factory("bulkEditApi", function($http) {
         deleteSavedSearchByGuid: function(guid) {
             return $http.get('/Umbraco/backoffice/ORCCsv/Database/DeleteSavedSearchByGuid/?guid=' + guid);
         },
+        getAllContentTypes: function() {
+           return $http.get("/Umbraco/backoffice/ORCCsv/ContentType/getAll"); 
+        },
         getAllSavedSearches: function() {
             return $http.get("/Umbraco/backoffice/ORCCsv/Database/getAllSavedSearches");
         },
