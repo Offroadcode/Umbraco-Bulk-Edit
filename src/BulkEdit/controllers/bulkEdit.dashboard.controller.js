@@ -37,7 +37,7 @@ angular
                 $scope.isSelectingProperty = false;
                 $scope.isRowDirty = [];
                 $scope.isSaving = [];
-                $scope.properties = [{ label: "-Select Property-", id: 0 }];
+                $scope.properties = [{ Name: "-Select Property-", Id: 0 }];
                 $scope.resultProperties = [];
                 $scope.propertiesToEdit = [];
                 $scope.propertyEditors = [];
@@ -66,14 +66,14 @@ angular
                 $scope.propertiesToEdit.push(property);
                 // Get the property editor for the property.
                 $scope
-                    .getPropertyEditor(property.dataTypeId)
+                    .getPropertyEditor(property.DataTypeDefinitionId)
                     .then(function(editor) {
                         // Loop through all results.
                         for (var i = 0; i < $scope.results.length; i++) {
                             // Add the editor to a list of editors for the result.
                             var thisEditor = JSON.parse(JSON.stringify(editor));
                             $scope.addEditorForPropertyToResultItem(
-                                property.alias,
+                                property.Alias,
                                 thisEditor,
                                 i
                             );
@@ -132,11 +132,11 @@ angular
                             );
                             $scope.properties = $scope.sortArrayAlphaByProp(
                                 $scope.properties,
-                                "label"
+                                "Name"
                             );
                             $scope.properties.unshift({
-                                label: "-Select Property-",
-                                id: 0
+                                Name: "-Select Property-",
+                                Id: 0
                             });
                         }
                     );
@@ -255,10 +255,10 @@ angular
                             var propToEdit = $scope.propertiesToEdit[j];
                             var editor = editors[j];
                             nodeToSave.properties.push({
-                                alias: propToEdit.alias,
+                                alias: propToEdit.Alias,
                                 value: editor.value
                             });
-                            $scope.results[i][propToEdit.alias] = editor.value;
+                            $scope.results[i][propToEdit.Alias] = editor.value;
                         }
                         nodesToSave.push(nodeToSave);
                     }
@@ -292,13 +292,13 @@ angular
                     bulkEditApi
                         .savePropertyForNode(
                             node.Id,
-                            propToEdit.alias,
+                            propToEdit.Alias,
                             editor.value
                         )
                         .then(function(result) {
                             $scope.isSaving[index] = false;
                             $scope.overwritePropValue(
-                                propToEdit.alias,
+                                propToEdit.Alias,
                                 editor.value,
                                 index
                             );
@@ -411,17 +411,17 @@ angular
          */
             $scope.buildPropertiesForDoctype = function(doctype) {
                 var properties = [];
-                if (doctype && doctype.groups && doctype.groups.length > 0) {
-                    for (var i = 0; i < doctype.groups.length; i++) {
-                        var group = doctype.groups[i];
+                if (doctype && doctype.PropertyGroups && doctype.PropertyGroups.length > 0) {
+                    for (var i = 0; i < doctype.PropertyGroups.length; i++) {
+                        var group = doctype.PropertyGroups[i];
                         if (
                             group &&
-                            group.properties &&
-                            group.properties.length > 0
+                            group.PropertyTypes &&
+                            group.PropertyTypes.length > 0
                         ) {
-                            for (var j = 0; j < group.properties.length; j++) {
-                                var property = group.properties[j];
-                                if (property.view.indexOf("grid") < 0) {
+                            for (var j = 0; j < group.PropertyTypes.length; j++) {
+                                var property = group.PropertyTypes[j];
+                                if (property.PropertyEditorAlias.indexOf("Grid") < 0) {
                                     properties.push(property);
                                 }
                             }
@@ -454,7 +454,7 @@ angular
                         for (var j = 0; j < editors.length; j++) {
                             var propToEdit = propsToEdit[j];
                             var editor = editors[j];
-                            if (node[propToEdit.alias] !== editor.value) {
+                            if (node[propToEdit.Alias] !== editor.value) {
                                 isDirty = true;
                             }
                         }
