@@ -11,7 +11,7 @@ using Umbraco.Web;
 
 namespace Orc.CsvExport.ContentExporters
 {
-    public class PublishedContentExporter: BaseContentExporter<IPublishedContent>
+    public class PublishedContentExporter : BaseContentExporter<IPublishedContent>
     {
         public override DataTable GetData(string documentTypeAlias, int? rootId)
         {
@@ -50,7 +50,7 @@ namespace Orc.CsvExport.ContentExporters
 
         public override IEnumerable<PropertyEntry> GetPropertiesInEntry(IPublishedContent entry)
         {
-            foreach(var item in entry.Properties)
+            foreach (var item in entry.Properties)
             {
                 if (item.HasValue)
                 {
@@ -65,7 +65,7 @@ namespace Orc.CsvExport.ContentExporters
             }
         }
 
-    
+
 
         private List<IPublishedContent> GetAllContentOfId(string documentTypeAlias)
         {
@@ -79,6 +79,18 @@ namespace Orc.CsvExport.ContentExporters
             var root = UmbracoContext.Current.ContentCache.GetById(rootId);
             var descendants = root.Descendants(documentTypeAlias);
             return descendants.ToList();
+        }
+
+        public override string GetPath(IPublishedContent entry)
+        {
+            var ancestorsWithSelf = entry.Ancestors().ToList();
+
+            var names = ancestorsWithSelf.OrderBy(x => x.Level).Select(x => x.Name);
+
+            var str = string.Join(", ", names);
+
+            return str;
+
         }
     }
 }

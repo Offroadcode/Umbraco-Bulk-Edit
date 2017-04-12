@@ -23,7 +23,7 @@
             db.Execute("DELETE FROM BulkSavedSearch WHERE Guid=@0", guid); 
             var response = buildSerializedResponse(new
             {
-                success = true
+                success = true 
             });
             return response;
         }

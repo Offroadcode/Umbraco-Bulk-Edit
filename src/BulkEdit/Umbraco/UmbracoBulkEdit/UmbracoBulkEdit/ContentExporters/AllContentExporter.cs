@@ -10,7 +10,7 @@ using Umbraco.Web;
 
 namespace Orc.CsvExport.ContentExporters
 {
-    public class AllContentExporter: BaseContentExporter<IContent>
+    public class AllContentExporter : BaseContentExporter<IContent>
     {
         public override int GetId(IContent entry)
         {
@@ -19,7 +19,7 @@ namespace Orc.CsvExport.ContentExporters
 
         public override string GetName(IContent entry)
         {
-            return entry.Name; 
+            return entry.Name;
         }
         public override string GetType(IContent entry)
         {
@@ -52,7 +52,7 @@ namespace Orc.CsvExport.ContentExporters
         }
         private List<IContent> GetAllContentOfId(string documentTypeAlias)
         {
-            var contentType= ApplicationContext.Current.Services.ContentTypeService.GetContentType(documentTypeAlias);
+            var contentType = ApplicationContext.Current.Services.ContentTypeService.GetContentType(documentTypeAlias);
 
             return ApplicationContext.Current.Services.ContentService.GetContentOfContentType(contentType.Id).ToList();
         }
@@ -74,16 +74,29 @@ namespace Orc.CsvExport.ContentExporters
             };
             foreach (var item in entry.Properties)
             {
-                
-                    var property = new PropertyEntry()
-                    {
-                        Value = item.Value,
-                        PropertyAlias = item.PropertyType.Alias,
-                        Type = item.Value.GetType()
-                    };
-                    yield return property;
-                
+
+                var property = new PropertyEntry()
+                {
+                    Value = item.Value,
+                    PropertyAlias = item.PropertyType.Alias,
+                    Type = item.Value.GetType()
+                };
+                yield return property;
+
             }
+        }
+
+        public override string GetPath(IContent entry)
+        {
+
+            var ancestorsWithSelf = entry.Ancestors().ToList();
+
+            var names = ancestorsWithSelf.OrderBy(x => x.Level).Select(x => x.Name);
+
+            var str = string.Join(", ", names);
+
+            return str;
+
         }
     }
 }
