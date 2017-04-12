@@ -113,6 +113,7 @@
                                     target="_blank">{{result.Name}} <i ng-class="value.icon" class="icon-out"></i>
                                 </a>
                             </div>
+                            <div class="node-path" ng-show="!config.hideBreadcrumbs">{{getPath(result)}}</div>
                         </div>
                         <!-- Node ID -->
                         <div ng-show="!config.hideIdCol" class="cell span1 text-center">{{result.Id}}</div>
