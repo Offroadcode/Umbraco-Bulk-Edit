@@ -619,43 +619,11 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         return pages;
     };
 
-    $scope.getSavedSearchPages = function() {
-        var pages = [];
-        var current = $scope.currentSavedSearchPage;
-        var shouldAddFirst = false;
-        var shouldAddLast = false;
-        var maxPage = Math.ceil(
-            $scope.savedSearches.length / $scope.config.itemsPerPage
-        );
-        var max = 0;
-        var min = 0;
-        if (current < 6 && maxPage > 10) {
-            max = 9;
-            shouldAddLast = true;
-        } else if (maxPage < 11) {
-            max = maxPage - 1;
-        } else {
-            shouldAddFirst = true;
-            if (maxPage - current > 5) {
-                shouldAddLast = true;
-                max = current + 5;
-                min = current - 4;
-            } else {
-                min = maxPage - 10;
-                max = maxPage - 1;
-            }
-        }
-        if (shouldAddFirst) {
-            pages.push(1);
-        }
-        for (var i = min; i <= max; i++) {
-            pages.push(i + 1);
-        }
-        if (shouldAddLast) {
-            pages.push(maxPage);
-        }
-        return pages;
-    };
+    $scope.getPath = function(result) {
+        var path = result.Path.split(", ").join(" > ");
+        return path;
+    }
+
 
     /**
      * @method getPropertyEditor
@@ -705,6 +673,44 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
             return response.data.results;
         });
     };
+
+    $scope.getSavedSearchPages = function() {
+        var pages = [];
+        var current = $scope.currentSavedSearchPage;
+        var shouldAddFirst = false;
+        var shouldAddLast = false;
+        var maxPage = Math.ceil(
+            $scope.savedSearches.length / $scope.config.itemsPerPage
+        );
+        var max = 0;
+        var min = 0;
+        if (current < 6 && maxPage > 10) {
+            max = 9;
+            shouldAddLast = true;
+        } else if (maxPage < 11) {
+            max = maxPage - 1;
+        } else {
+            shouldAddFirst = true;
+            if (maxPage - current > 5) {
+                shouldAddLast = true;
+                max = current + 5;
+                min = current - 4;
+            } else {
+                min = maxPage - 10;
+                max = maxPage - 1;
+            }
+        }
+        if (shouldAddFirst) {
+            pages.push(1);
+        }
+        for (var i = min; i <= max; i++) {
+            pages.push(i + 1);
+        }
+        if (shouldAddLast) {
+            pages.push(maxPage);
+        }
+        return pages;
+    };    
 
     $scope.gotoPage = function(page) {
         page = Number(page);
