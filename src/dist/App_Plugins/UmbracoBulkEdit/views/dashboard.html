@@ -107,7 +107,13 @@
                     <div class="row" ng-repeat="result in getCurrentPage()">
                         <!-- Node Name -->
                         <div class="cell span2">
-                            <a class="result-content-name" href="/umbraco/#/content/content/edit/{{result.Id}}" target="_blank">{{result.Name}} <i ng-class="value.icon" class="icon-out"></i></a>
+                            <div>
+                                <a class="result-content-name" 
+                                    href="/umbraco/#/content/content/edit/{{result.Id}}" 
+                                    target="_blank">{{result.Name}} <i ng-class="value.icon" class="icon-out"></i>
+                                </a>
+                            </div>
+                            <div class="node-path" ng-show="!config.hideBreadcrumbs">{{getPath(result)}}</div>
                         </div>
                         <!-- Node ID -->
                         <div ng-show="!config.hideIdCol" class="cell span1 text-center">{{result.Id}}</div>
