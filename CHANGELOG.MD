@@ -3,6 +3,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [v1.0.1](https://github.com/Offroadcode/Umbraco-Bulk-Edit/releases/tag/v1.0.0)
+
+### Changed
+
+- Improved styles for displaying up to three fields to edit in results.
+- Now only show up to three fields to edit. Dropdown to select properties disappears when three fields selected.
+
+### Fixed
+
+- Now resets the nav tree's open/close state when leaving tab. Fixes [#15](https://github.com/Offroadcode/Umbraco-Bulk-Edit/issues/15)
+- Fixed bug in GetPublishedContent API endpoint where some property types (like thumbnails) could cause a self referencing loop error in the JSON serialization. [#16](https://github.com/Offroadcode/Umbraco-Bulk-Edit/issues/16)
+- Fixed bug where properties would not load in dropdown if saved search used to get results.
+- Fixed bug where incorrect filter comparison would remove all property options in add property dropdown after the first dropdown was selected.
+
 ## [v1.0.0](https://github.com/Offroadcode/Umbraco-Bulk-Edit/releases/tag/v1.0.0)
 
 ### Added
