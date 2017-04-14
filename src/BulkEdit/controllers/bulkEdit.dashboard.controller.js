@@ -16,6 +16,7 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
     */
     $scope.init = function() {
         $scope.setVariables();
+        $scope.listenForExit();
         $scope.buildDocTypeOptions();
         $scope.getSavedSearches();
     };
@@ -764,6 +765,18 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
     };
 
     /**
+     * @method listenForExit
+     * @returns {void}
+     * @description Listen for when the $scope is exited/destroyed, to finish up some stuff.
+     */
+    $scope.listenForExit = function() {
+        $scope.$on('$destroy', function() {
+            // reset the nav to its default state.
+            $scope.showNav();
+        });
+    };
+
+    /**
      * @method openPage
      * @param {string} verb - must be 'GET or 'POST'
      * @param {string} url
@@ -851,8 +864,13 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         }
     };
 
+    /**
+     * @method showNav
+     * @returns {void}
+     * @description Resets the tree to its default display state.
+     */
     $scope.showNav = function() {
-        // hide the tree.
+        // show the tree.
         appState.setGlobalState("showNavigation", true);
         $scope.resetWrapperOffsetOnResize();
     };
