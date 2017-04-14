@@ -21,6 +21,7 @@
                         <span ng-show="startNode.id == 0">Choose Start Node</span>
                         <span ng-show="startNode.id !== 0"><i class="icon" ng-class="startNode.icon"></i> {{startNode.name}}</span>
                     </button>
+                    <!-- Choose DocType Select -->
                     <span class="content-type-selector" ng-show="startNode.id !== 0">
                         &nbsp;with the&nbsp;
                         <select
@@ -64,7 +65,7 @@
             <!-- Results Headline -->
             <div class="row">
                 <h4 class="span9">Results (Found {{results.length}} Documents)</h4>
-                <div class="span3">
+                <div class="span3" ng-show="propertiesToEdit.length < 3">
                     <!-- Add Field Button -->
                     <button type="button" 
                         ng-click="openPropertySelection()"

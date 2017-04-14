@@ -225,6 +225,7 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
                     $scope.doctype = $scope.doctypes[i];
                 }
             }
+            $scope.loadDocType();
             $scope.search();
         });
     };
@@ -536,8 +537,18 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
             } else {
                 classes += "span8";
             }
-        } else {
-            classes += "span4-5";
+        } else if (length == 2) {
+            if ($scope.config.hideIdCol) {
+                classes += "span4-5";
+            } else {
+                classes += "span4";
+            }
+        } else if (length == 3) {
+            if ($scope.config.hideIdCol) {
+                classes += "span3";
+            } else {
+                classes += "span2-67";
+            }
         }
         return classes;
     };
