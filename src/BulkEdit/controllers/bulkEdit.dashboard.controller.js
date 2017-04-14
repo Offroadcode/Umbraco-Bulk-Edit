@@ -556,7 +556,7 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
             var prop = props[i];
             var propAlreadySelected = false;
             for (var j = 0; j < selected.length; j++) {
-                if (selected[j].id == prop.id) {
+                if (selected[j].Id == prop.Id) {
                     propAlreadySelected = true;
                 }
             }

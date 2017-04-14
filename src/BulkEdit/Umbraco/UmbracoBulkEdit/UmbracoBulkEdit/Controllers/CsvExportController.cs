@@ -2,6 +2,7 @@
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Excel;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -97,11 +98,18 @@ namespace Orc.CsvExport.Controllers
                 }
                 models.Add(model);
             }
+            List<string> errors = new List<string>();
 
+            var jsonSerializerSettings = new JsonSerializerSettings();
+            jsonSerializerSettings.Error = (serializer, err) => {
+                err.ErrorContext.Handled = true;
+            };
+
+            var serialized = JsonConvert.SerializeObject(models, jsonSerializerSettings);
 
             var resp = new HttpResponseMessage()
             {
-                Content = new StringContent(Newtonsoft.Json.JsonConvert.SerializeObject(models))
+                Content = new StringContent(serialized)
             };
             resp.Content.Headers.ContentType = new MediaTypeHeaderValue("application/json");
             return resp;
