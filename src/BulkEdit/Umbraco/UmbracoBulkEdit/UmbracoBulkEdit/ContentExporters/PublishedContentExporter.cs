@@ -6,6 +6,7 @@ using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
@@ -50,19 +51,33 @@ namespace Orc.CsvExport.ContentExporters
 
         public override IEnumerable<PropertyEntry> GetPropertiesInEntry(IPublishedContent entry)
         {
+            var allowed = new[] {"String", "Boolean", "HtmlString"};
+            var properties = new List<PropertyEntry>();
             foreach (var item in entry.Properties)
             {
                 if (item.HasValue)
                 {
-                    var property = new PropertyEntry()
+                    try
                     {
-                        Value = item.Value,
-                        PropertyAlias = item.PropertyTypeAlias,
-                        Type = item.Value.GetType()
-                    };
-                    yield return property;
+                        var type = item.Value != null ? item.Value.GetType() : null;
+                        if (type != null && allowed.Contains(type.Name))
+                        {
+                            var property = new PropertyEntry()
+                            {
+                                Value = item.Value,
+                                PropertyAlias = item.PropertyTypeAlias,
+                                Type = item.Value.GetType()
+                            };
+                            properties.Add(property);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        LogHelper.Error<PropertyEntry>("Could not import property", e);
+                    }
                 }
             }
+            return properties;
         }
 
 
