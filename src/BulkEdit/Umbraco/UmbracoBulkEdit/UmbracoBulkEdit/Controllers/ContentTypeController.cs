@@ -1,19 +1,14 @@
-﻿namespace Orc.CsvExport.Controllers
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Umbraco.Core.Models;
+using Umbraco.Web.Mvc;
+using Umbraco.Web.WebApi;
+
+namespace UmbracoBulkEdit.Controllers
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Net;
-    using System.Web.Http;
-
-    using AutoMapper;
-
-    using Umbraco.Core.Models;
-    using Umbraco.Core.PropertyEditors;
-    using Umbraco.Web.Models.ContentEditing;
-    using Umbraco.Web.Mvc;
-    using Umbraco.Web.WebApi;
-    using System.Net.Http;
-    using System.Net.Http.Headers;    /// <summary>
+    /// <summary>
                                       /// The data type controller.
                                       /// </summary>
     [PluginController("ORCCsv")]

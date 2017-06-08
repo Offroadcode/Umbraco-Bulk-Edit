@@ -1,13 +1,8 @@
-﻿using Orc.CsvExport.ContentExporters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Umbraco.Web.Models;
-using Umbraco.Web.PublishedCache;
+using UmbracoBulkEdit.ContentExporters;
 
-namespace Orc.CsvExport.PropertyConverters
+namespace UmbracoBulkEdit.PropertyConverters
 {
     public class MediaReferenceConverter : BasePropertyConverter
     {

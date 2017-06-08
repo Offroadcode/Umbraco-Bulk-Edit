@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Core;
 using Umbraco.Core.Models;
 using Umbraco.Web;
 
-namespace Orc.CsvExport.ContentExporters
+namespace UmbracoBulkEdit.ContentExporters
 {
     public class AllContentExporter : BaseContentExporter<IContent>
     {

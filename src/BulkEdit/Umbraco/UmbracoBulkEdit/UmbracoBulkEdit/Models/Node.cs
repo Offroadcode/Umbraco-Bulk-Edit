@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace ORCCsv.Models
+namespace UmbracoBulkEdit.Models
 {
     public class Property
     {

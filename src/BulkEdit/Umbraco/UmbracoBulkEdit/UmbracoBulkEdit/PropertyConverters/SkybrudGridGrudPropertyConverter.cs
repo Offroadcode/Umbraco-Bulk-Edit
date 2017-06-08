@@ -1,11 +1,7 @@
-﻿using Orc.CsvExport.ContentExporters;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using UmbracoBulkEdit.ContentExporters;
 
-namespace Orc.CsvExport.PropertyConverters
+namespace UmbracoBulkEdit.PropertyConverters
 {
     public class SkybrudGridGrudPropertyConverter : BasePropertyConverter
     {

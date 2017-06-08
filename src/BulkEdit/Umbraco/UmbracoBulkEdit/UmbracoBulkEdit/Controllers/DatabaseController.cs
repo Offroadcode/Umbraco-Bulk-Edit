@@ -1,16 +1,13 @@
-﻿namespace Orc.CsvExport.Controllers
-{
-    using Umbraco.Core;
-    using Umbraco.Core.Persistence;
-    using Umbraco.Web.Mvc;
-    using Umbraco.Web.WebApi;
-    using System;
-    using System.Net.Http;
-    using System.Net.Http.Headers;
-    using System.Web.Http;
-    using System.Collections.Generic;
-    using ORCCsv.Models;
+﻿using System;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using Umbraco.Core;
+using Umbraco.Web.Mvc;
+using Umbraco.Web.WebApi;
+using UmbracoBulkEdit.Models;
 
+namespace UmbracoBulkEdit.Controllers
+{
     [PluginController("ORCCsv")]
     public class DatabaseController : UmbracoAuthorizedApiController
     {

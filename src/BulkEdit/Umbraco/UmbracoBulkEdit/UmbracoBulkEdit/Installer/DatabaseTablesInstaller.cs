@@ -8,7 +8,7 @@ using Umbraco.Web;
 
 // https://cultiv.nl/blog/using-umbraco-migrations-to-deploy-changes/
 
-namespace ORCCsv.Eventhandlers
+namespace UmbracoBulkEdit.Installer
 {
     public class MigrationEvents : ApplicationEventHandler
     {

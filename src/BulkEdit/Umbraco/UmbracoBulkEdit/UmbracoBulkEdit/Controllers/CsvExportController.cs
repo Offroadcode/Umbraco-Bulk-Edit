@@ -1,36 +1,34 @@
-﻿using ClosedXML.Excel;
-using CsvHelper;
-using CsvHelper.Configuration;
-using CsvHelper.Excel;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
+using ClosedXML.Excel;
+using CsvHelper;
+using CsvHelper.Excel;
+using Newtonsoft.Json;
 using Umbraco.Web.Mvc;
 using Umbraco.Web.WebApi;
+using UmbracoBulkEdit.ContentExporters;
 
-namespace Orc.CsvExport.Controllers
+namespace UmbracoBulkEdit.Controllers
 {
     [PluginController("ORCCsv")]
     public class CsvExportController : UmbracoAuthorizedApiController
     {
             public HttpResponseMessage GetContent(ExportFormat format, string contentTypeAlias, int? rootId)
             {
-                var data = ContentExportContext.Instance.GetData<ContentExporters.AllContentExporter>(contentTypeAlias, rootId);
+                var data = ContentExportContext.Instance.GetData<AllContentExporter>(contentTypeAlias, rootId);
 
                 return ReturnDataTableToFormat(format, data);
             }
         public HttpResponseMessage GetPublishedContent(ExportFormat format, string contentTypeAlias, int? rootId)
         {
-            var data = ContentExportContext.Instance.GetData<ContentExporters.PublishedContentExporter>(contentTypeAlias, rootId);
+            var data = ContentExportContext.Instance.GetData<PublishedContentExporter>(contentTypeAlias, rootId);
             return ReturnDataTableToFormat(format, data);
 
         }

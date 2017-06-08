@@ -1,8 +1,7 @@
-﻿using System.Collections.Generic;
-using Umbraco.Core.Persistence;
+﻿using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.DatabaseAnnotations;
 
-namespace ORCCsv.Models
+namespace UmbracoBulkEdit.Models
 {
     [TableName("BulkSavedSearch")]
     [PrimaryKey("guid", autoIncrement = false)]

@@ -1,10 +1,9 @@
-﻿using Orc.CsvExport.PropertyConverters;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Linq;
+using UmbracoBulkEdit.PropertyConverters;
 
-namespace Orc.CsvExport.ContentExporters
+namespace UmbracoBulkEdit.ContentExporters
 {
     public abstract class BaseContentExporter
     {

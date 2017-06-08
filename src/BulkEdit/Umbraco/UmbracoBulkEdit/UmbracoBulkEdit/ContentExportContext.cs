@@ -1,12 +1,8 @@
-﻿using Orc.CsvExport.ContentExporters;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using UmbracoBulkEdit.ContentExporters;
 
-namespace Orc.CsvExport
+namespace UmbracoBulkEdit
 {
     public class ContentExportContext
     {

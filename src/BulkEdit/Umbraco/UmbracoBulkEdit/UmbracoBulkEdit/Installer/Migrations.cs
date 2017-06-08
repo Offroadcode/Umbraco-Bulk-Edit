@@ -1,12 +1,12 @@
-﻿using ORCCsv.Models;
-using Umbraco.Core;
+﻿using Umbraco.Core;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Persistence;
 using Umbraco.Core.Persistence.Migrations;
 using Umbraco.Core.Persistence.SqlSyntax;
+using UmbracoBulkEdit.Models;
 
 // https://cultiv.nl/blog/using-umbraco-migrations-to-deploy-changes/
-namespace ORCCsv.Migrations
+namespace UmbracoBulkEdit.Installer
 {
     [Migration("1.0.0", 1, "BulkSavedSearch")]
     public class CreateBulkSavedSearchTable : MigrationBase
