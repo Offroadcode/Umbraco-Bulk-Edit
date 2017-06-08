@@ -17,6 +17,10 @@ module.exports = function(grunt) {
                 spawn: false,
                 atBegin: true
             },
+            config: {
+                files: ["BulkEdit/config/*.config"],
+                tasks: ["copy:config"]
+            },
             dll: {
                 files: ["BulkEdit/Umbraco/UmbracoBulkEdit/**/*.cs"],
                 tasks: ["msbuild:dist", "copy:dll"]
@@ -64,6 +68,14 @@ module.exports = function(grunt) {
         },
 
         copy: {
+            config: {
+                cwd: "BulkEdit/config/",
+                src: [
+                    "umbracoBulkEdit.config"
+                ],
+                dest: "<%= dest %>/Config/",
+                expand: true
+            },
             dll: {
                 cwd: "BulkEdit/Umbraco/UmbracoBulkEdit/UmbracoBulkEdit/bin/debug/",
                 src: [
@@ -200,7 +212,8 @@ module.exports = function(grunt) {
         "copy:manifest",
         "copy:css",
         "msbuild:dist",
-        "copy:dll"
+        "copy:dll",
+        "copy:config"
     ]);
 
     grunt.registerTask("umbraco", [

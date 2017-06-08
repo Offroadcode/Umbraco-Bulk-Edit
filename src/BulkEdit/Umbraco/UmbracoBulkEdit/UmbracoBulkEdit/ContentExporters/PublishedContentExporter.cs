@@ -1,19 +1,17 @@
-﻿using Orc.CsvExport.ContentExporters;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Umbraco.Core.Logging;
 using Umbraco.Core.Models;
 using Umbraco.Web;
+using UmbracoBulkEdit.Lookups;
 
-namespace Orc.CsvExport.ContentExporters
+namespace UmbracoBulkEdit.ContentExporters
 {
     public class PublishedContentExporter : BaseContentExporter<IPublishedContent>
     {
+        private readonly SettingsLookup SettingsLookup = new SettingsLookup();
         public override DataTable GetData(string documentTypeAlias, int? rootId)
         {
             var entries = new List<IPublishedContent>();
@@ -51,7 +49,14 @@ namespace Orc.CsvExport.ContentExporters
 
         public override IEnumerable<PropertyEntry> GetPropertiesInEntry(IPublishedContent entry)
         {
-            var allowed = new[] {"String", "Boolean", "HtmlString"};
+
+            var allowed = new List<string> { "String", "Boolean", "HtmlString" };
+
+            if (SettingsLookup.AllowedPropertyTypes != null && SettingsLookup.AllowedPropertyTypes.Any())
+            {
+                allowed = SettingsLookup.AllowedPropertyTypes.ToList();
+            }
+
             var properties = new List<PropertyEntry>();
             foreach (var item in entry.Properties)
             {
