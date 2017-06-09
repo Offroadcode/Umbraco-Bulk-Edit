@@ -463,6 +463,14 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
                 }
             }
         }
+        if (doctype && doctype.ContentTypeComposition && doctype.ContentTypeComposition.length > 0) {
+            for (var i = 0; i < doctype.ContentTypeComposition.length; i++) {
+                var contentTypeProperties = $scope.buildPropertiesForDoctype(doctype.ContentTypeComposition[i]);
+                if (contentTypeProperties.length > 0) {
+                    properties = properties.concat(contentTypeProperties);
+                }
+            }
+        }
         return properties;
     };
 
@@ -517,6 +525,7 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
                 $scope.propertyToAdd = $scope.resultProperties[
                     0
                 ];
+                console.info("Results", $scope.results);
                 return $scope.results;
             }
         }, function(error) {

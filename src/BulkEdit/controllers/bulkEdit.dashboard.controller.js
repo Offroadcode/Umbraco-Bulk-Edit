@@ -149,6 +149,13 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         }
     };
 
+    /**
+     * @method onConfigDialogConfirmation
+     * @param {Object} data
+     * @returns {void}
+     * @description Handles results from config dialog changes, modifying the 
+     * configuration accordingly.
+     */
     $scope.onConfigDialogConfirmation = function(data) {
         if (data) {
             $scope.config = JSON.parse(JSON.stringify(data));
@@ -163,12 +170,24 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         }
     };
 
+    /**
+     * @method onDeleteSavedSearchDialogConfirmation
+     * @param {Object} data
+     * @returns {void}
+     * @description Delete the indicated saved search and then update the list 
+     * of saved searches. Called by a delete confirmation dialog.
+     */
     $scope.onDeleteSavedSearchDialogConfirmation = function(data) {
         bulkEditApi.deleteSavedSearchByGuid(data.guid).then(function(result) {
             $scope.getSavedSearches();
         });
     };
 
+    /**
+     * @method openConfigDialog
+     * @returns {void}
+     * @description Open the dialog for configuring the editor's settings.
+     */
     $scope.openConfigDialog = function() {
         dialogService.open({
             template: "/App_Plugins/UmbracoBulkEdit/views/configDialog.html",
@@ -177,6 +196,13 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         });
     };
 
+    /**
+     * @method openDeleteSavedSearchDialog
+     * @param {string} guid
+     * @returns {void}
+     * @description Opens a dialog to confirm whether or not to delete the 
+     * saved search indicated by the GUID.
+     */
     $scope.openDeleteSavedSearchDialog = function(guid) {
         dialogService.open({
             template: "/App_Plugins/UmbracoBulkEdit/views/deleteSavedSearchDialog.html",
@@ -321,6 +347,11 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         }
     };
 
+    /**
+     * @method toggleSavedSearchPanel
+     * @returns {void}
+     * @description Toggles the visibility of the saved search dialog.
+     */
     $scope.toggleSavedSearchPanel = function() {
         $scope.showSavedSearch = !$scope.showSavedSearch;
     };
@@ -588,6 +619,14 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         return available;
     };
 
+    /**
+     * @method getJsonPop
+     * @param {string} stringifiedJSON
+     * @param {string} paramName
+     * @returns {any}
+     * @description Return the value of the indicated parameter belonging to the 
+     * JSON object.
+     */
     $scope.getJsonProp = function(stringifiedJSON, paramName) {
         try {
             var jsonAsObject = JSON.parse(stringifiedJSON);
@@ -640,10 +679,17 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         return pages;
     };
 
+    /**
+     * @method getPath
+     * @param {string} result
+     * @returns {string}
+     * @description Create a breadcrumb-style path to represent the locastion of 
+     * a node.
+     */
     $scope.getPath = function(result) {
         var path = result.Path.split(", ").join(" > ");
         return path;
-    }
+    };
 
 
     /**
@@ -688,6 +734,11 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         return index;
     };
 
+    /**
+     * @method getSavedSearches
+     * @returns {Array} an Array of Object
+     * @description Request a list of previous bulk edit searches from the API.
+     */
     $scope.getSavedSearches = function() {
         return bulkEditApi.getAllSavedSearches().then(function(response) {
             $scope.savedSearches = response.data.results;
@@ -695,6 +746,12 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         });
     };
 
+    /**
+     * @method getSavedSearchPages
+     * @returns {Array} an Array of Object
+     * @description Builds an array of the previously saved search listings that 
+     * are visible on the current page and returns them.
+     */
     $scope.getSavedSearchPages = function() {
         var pages = [];
         var current = $scope.currentSavedSearchPage;
@@ -733,12 +790,24 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
         return pages;
     };    
 
+    /**
+     * @method gotoPage
+     * @param {number} page
+     * @returns {void}
+     * @description Changes the currently viewed page of results.
+     */
     $scope.gotoPage = function(page) {
         page = Number(page);
         page = page - 1;
         $scope.currentPage = page;
     };
 
+    /**
+     * @method gotoSavedSearchPage
+     * @param {number} page
+     * @returns {void}
+     * @description Changes the currently viewed page of saved searches.
+     */
     $scope.gotoSavedSearchPage = function(page) {
         page = Number(page);
         page = page - 1;
