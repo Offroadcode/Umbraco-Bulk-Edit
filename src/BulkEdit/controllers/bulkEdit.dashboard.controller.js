@@ -470,6 +470,7 @@ angular.module("umbraco").controller("bulkEdit.dashboard.controller", function(
                 $scope.propertyToAdd = $scope.resultProperties[
                     0
                 ];
+                console.info("Results", $scope.results);
                 return $scope.results;
             }
         }, function(error) {
