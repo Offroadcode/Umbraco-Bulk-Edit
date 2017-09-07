@@ -1,6 +1,14 @@
 # Umbraco-Bulk-Edit &middot; ![version](https://img.shields.io/badge/version-1.0.1-green.svg)
 
-An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of content.
+An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of content. This allows you to update a field on multiple content items in one place/screen at once, think about how you want to increase stock levels on products after a delivery of new stock for instance. Now you can do it in one place. 
+
+Have paging built in so you can update a senible about of content in one go. 
+
+Export content too! Ever had a client say "it would be great if we could get this out as a spreadsheet" well...now you can.
+
+You can create custom views (ie which fields from which doctypes would you like to see) and save them which is super handy for checking meta description, prices, teaser text etc.
+
+Check the issues for any quirks and and feel free to raise an issue or even better a PR. Currently this package solves the problems we needed for our clients so if you want to extend it fork it and submit a pull request or we can discuss hiring us to add it in for you :)
 
 ## Install Dependencies
 
