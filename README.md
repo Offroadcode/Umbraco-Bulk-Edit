@@ -4,7 +4,7 @@ An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of
 
 Have paging built in so you can update a senible about of content in one go. 
 
-Export content too! Ever had a client say "it would be great if we could get this out as a spreadsheet" well...now you can.
+Export content too! Ever had a client say "it would be great if we could get this out as a spreadsheet" well...now you can. PLEASE NOTE: export only allows certain fields (ie the useful ones that you might want in a spreadsheet so no JSON blobs) which currently are boolean, string or HtmlString. You can add more in the config file, have a dig around if so.
 
 You can create custom views (ie which fields from which doctypes would you like to see) and save them which is super handy for checking meta description, prices, teaser text etc.
 
