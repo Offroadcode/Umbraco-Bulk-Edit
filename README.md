@@ -2,7 +2,7 @@
 
 An [Umbraco](https://umbraco.com/) package for the bulk editing and reporting of content. This allows you to update a field on multiple content items in one place/screen at once, think about how you want to increase stock levels on products after a delivery of new stock for instance. Now you can do it in one place. 
 
-Have paging built in so you can update a senible about of content in one go. 
+Have paging built in so you can update a sensible amount of content in one go. 
 
 Export content too! Ever had a client say "it would be great if we could get this out as a spreadsheet" well...now you can. PLEASE NOTE: export only allows certain fields (ie the useful ones that you might want in a spreadsheet so no JSON blobs) which currently are boolean, string or HtmlString. You can add more in the config file, have a dig around if so.
 
